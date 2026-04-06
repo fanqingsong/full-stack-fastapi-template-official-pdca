@@ -103,6 +103,12 @@ class Settings(BaseSettings):
     MINIO_BUCKET_NAME: str = "app-files"
     MINIO_REGION: str = "us-east-1"
 
+    # OpenAI Configuration
+    OPENAI_API_KEY: str = Field(default="", validation_alias="OPENAI_API_KEY")
+    OPENAI_MODEL: str = "gpt-4"
+    OPENAI_MAX_TOKENS: int = 2000
+    OPENAI_TEMPERATURE: float = 0.7
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (
