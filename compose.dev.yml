@@ -106,7 +106,7 @@ services:
 
   # Cypress E2E testing service (dev only)
   cypress:
-    image: cypress/included:14.3.2
+    image: cypress/included:15.13.0
     working_dir: /e2e
     network_mode: "host"
     depends_on:
