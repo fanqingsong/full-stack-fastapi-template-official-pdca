@@ -7,7 +7,7 @@ from datetime import datetime
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import Session
 
 from app.pdca.state import PDCAState
 from app.pdca.agents.registry import AgentRegistry
@@ -23,7 +23,7 @@ from app.pdca.models import PDCACycleUpdate
 class PDCAEngine:
     """PDCA workflow engine using LangGraph StateGraph."""
 
-    def __init__(self, db_session: AsyncSession):
+    def __init__(self, db_session: Session):
         """
         Initialize the PDCA engine.
 
@@ -73,7 +73,7 @@ class PDCAEngine:
         # Compile with checkpointer
         return workflow.compile(checkpointer=self.checkpointer)
 
-    def _plan_node(self, state: PDCAState) -> PDCAState:
+    async def _plan_node(self, state: PDCAState) -> PDCAState:
         """
         Plan phase: Set goals and plan details.
 
@@ -86,17 +86,37 @@ class PDCAEngine:
         # Extract cycle_id from state
         cycle_id = uuid.UUID(state["id"])
 
-        # Create execution log
-        create_execution_log(
-            self.db_session,
-            cycle_id=cycle_id,
-            phase="plan",
-            level="info",
-            message="Plan phase started"
+        # Create execution log (run in executor since it's sync)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: create_execution_log(
+                self.db_session,
+                cycle_id=cycle_id,
+                phase="plan",
+                level="info",
+                message="Plan phase started"
+            )
         )
 
         # Check for child cycles
-        children = self._get_children_sync(cycle_id)
+        children = await loop.run_in_executor(
+            None,
+            lambda: self._get_children_sync(cycle_id)
+        )
+        has_children = len(children) > 0
+
+        if has_children:
+            await loop.run_in_executor(
+                None,
+                lambda: create_execution_log(
+                    self.db_session,
+                    cycle_id=cycle_id,
+                    phase="plan",
+                    level="info",
+                    message=f"Waiting for {len(children)} child cycles to complete"
+                )
+            )
 
         # Update state
         state["phase"] = "plan"
@@ -104,7 +124,7 @@ class PDCAEngine:
 
         return state
 
-    def _do_node(self, state: PDCAState) -> PDCAState:
+    async def _do_node(self, state: PDCAState) -> PDCAState:
         """
         Do phase: Execute agent tasks.
 
@@ -119,13 +139,17 @@ class PDCAEngine:
         agent_type = state.get("agent_type", "openai")
         agent_input = state.get("agent_input", {})
 
-        # Create execution log
-        create_execution_log(
-            self.db_session,
-            cycle_id=cycle_id,
-            phase="do",
-            level="info",
-            message=f"Do phase started with agent type: {agent_type}"
+        # Create execution log (run in executor since it's sync)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: create_execution_log(
+                self.db_session,
+                cycle_id=cycle_id,
+                phase="do",
+                level="info",
+                message=f"Do phase started with agent type: {agent_type}"
+            )
         )
 
         # Get executor from registry and execute
@@ -133,17 +157,20 @@ class PDCAEngine:
             executor = AgentRegistry.get_executor(agent_type)
             task = agent_input.get("prompt", "")
 
-            # Execute agent (synchronously)
-            result = asyncio.run(executor.execute(task, agent_input))
+            # Execute agent (async)
+            result = await executor.execute(task, agent_input)
 
-            # Create success log
-            create_execution_log(
-                self.db_session,
-                cycle_id=cycle_id,
-                phase="do",
-                level="info",
-                message=f"Agent execution completed successfully",
-                metadata={"status": result.get("status")}
+            # Create success log (run in executor since it's sync)
+            await loop.run_in_executor(
+                None,
+                lambda: create_execution_log(
+                    self.db_session,
+                    cycle_id=cycle_id,
+                    phase="do",
+                    level="info",
+                    message=f"Agent execution completed successfully",
+                    metadata={"status": result.get("status")}
+                )
             )
 
             # Update state with successful result
@@ -151,14 +178,17 @@ class PDCAEngine:
             state["error"] = None
 
         except Exception as e:
-            # Create error log
-            create_execution_log(
-                self.db_session,
-                cycle_id=cycle_id,
-                phase="do",
-                level="error",
-                message=f"Agent execution failed: {str(e)}",
-                metadata={"error": str(e)}
+            # Create error log (run in executor since it's sync)
+            await loop.run_in_executor(
+                None,
+                lambda: create_execution_log(
+                    self.db_session,
+                    cycle_id=cycle_id,
+                    phase="do",
+                    level="error",
+                    message=f"Agent execution failed: {str(e)}",
+                    metadata={"error": str(e)}
+                )
             )
 
             # Update state with error
@@ -174,7 +204,7 @@ class PDCAEngine:
 
         return state
 
-    def _check_node(self, state: PDCAState) -> PDCAState:
+    async def _check_node(self, state: PDCAState) -> PDCAState:
         """
         Check phase: Validate execution results.
 
@@ -186,13 +216,17 @@ class PDCAEngine:
         """
         cycle_id = uuid.UUID(state["id"])
 
-        # Create execution log
-        create_execution_log(
-            self.db_session,
-            cycle_id=cycle_id,
-            phase="check",
-            level="info",
-            message="Check phase started"
+        # Create execution log (run in executor since it's sync)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: create_execution_log(
+                self.db_session,
+                cycle_id=cycle_id,
+                phase="check",
+                level="info",
+                message="Check phase started"
+            )
         )
 
         # Get execution result
@@ -220,18 +254,21 @@ class PDCAEngine:
         state["approval_status"] = approval_status
         state["updated_at"] = datetime.utcnow()
 
-        # Create log for check result
-        create_execution_log(
-            self.db_session,
-            cycle_id=cycle_id,
-            phase="check",
-            level="info",
-            message=f"Check completed: passed={passed}, status={approval_status}"
+        # Create log for check result (run in executor since it's sync)
+        await loop.run_in_executor(
+            None,
+            lambda: create_execution_log(
+                self.db_session,
+                cycle_id=cycle_id,
+                phase="check",
+                level="info",
+                message=f"Check completed: passed={passed}, status={approval_status}"
+            )
         )
 
         return state
 
-    def _act_node(self, state: PDCAState) -> PDCAState:
+    async def _act_node(self, state: PDCAState) -> PDCAState:
         """
         Act phase: Handle improvements when check fails.
 
@@ -243,13 +280,17 @@ class PDCAEngine:
         """
         cycle_id = uuid.UUID(state["id"])
 
-        # Create execution log
-        create_execution_log(
-            self.db_session,
-            cycle_id=cycle_id,
-            phase="act",
-            level="info",
-            message="Act phase started - implementing improvements"
+        # Create execution log (run in executor since it's sync)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: create_execution_log(
+                self.db_session,
+                cycle_id=cycle_id,
+                phase="act",
+                level="info",
+                message="Act phase started - implementing improvements"
+            )
         )
 
         # Create improvement action
@@ -302,7 +343,7 @@ class PDCAEngine:
         # get_child_cycles is synchronous now, just call it directly
         return get_child_cycles(self.db_session, parent_id)
 
-    def execute_cycle(self, cycle_id: uuid.UUID) -> PDCAState:
+    async def execute_cycle(self, cycle_id: uuid.UUID) -> PDCAState:
         """
         Execute a complete PDCA cycle.
 
@@ -312,8 +353,13 @@ class PDCAEngine:
         Returns:
             Final PDCAState after execution
         """
-        # Get cycle from database
-        cycle = get_pdca_cycle(self.db_session, cycle_id)
+        # Get cycle from database (run in executor since it's sync)
+        loop = asyncio.get_event_loop()
+        cycle = await loop.run_in_executor(
+            None,
+            lambda: get_pdca_cycle(self.db_session, cycle_id)
+        )
+
         if not cycle:
             raise ValueError(f"Cycle not found: {cycle_id}")
 
@@ -337,29 +383,35 @@ class PDCAEngine:
             "error": None
         }
 
-        # Update cycle status to running
-        update_pdca_cycle(
-            self.db_session,
-            cycle,
-            {"status": "running"}
+        # Update cycle status to running (run in executor since it's sync)
+        await loop.run_in_executor(
+            None,
+            lambda: update_pdca_cycle(
+                self.db_session,
+                cycle,
+                {"status": "running"}
+            )
         )
 
-        # Invoke graph with thread_id for checkpointing
+        # Invoke graph with thread_id for checkpointing (async)
         config = {"configurable": {"thread_id": str(cycle_id)}}
-        final_state = self.graph.invoke(initial_state, config)
+        final_state = await self.graph.ainvoke(initial_state, config)
 
-        # Update cycle with final phase and status
+        # Update cycle with final phase and status (run in executor since it's sync)
         final_phase = final_state.get("phase", "plan")
         final_status = "completed" if final_state.get("passed") else "failed"
 
-        update_pdca_cycle(
-            self.db_session,
-            cycle,
-            {
-                "phase": final_phase,
-                "status": final_status,
-                "state_data": final_state
-            }
+        await loop.run_in_executor(
+            None,
+            lambda: update_pdca_cycle(
+                self.db_session,
+                cycle,
+                {
+                    "phase": final_phase,
+                    "status": final_status,
+                    "state_data": final_state
+                }
+            )
         )
 
         return final_state

@@ -1,7 +1,8 @@
 """Tests for PDCA engine."""
 
 import pytest
-from unittest.mock import Mock, patch
+import asyncio
+from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime
 
 from app.pdca.engine import PDCAEngine
@@ -14,7 +15,8 @@ def pdca_engine(db):
     return PDCAEngine(db)
 
 
-def test_plan_node(pdca_engine, test_pdca_cycle):
+@pytest.mark.asyncio
+async def test_plan_node(pdca_engine, test_pdca_cycle):
     """Test plan node execution."""
     # Create full PDCAState dict with all required fields
     state: PDCAState = {
@@ -36,15 +38,16 @@ def test_plan_node(pdca_engine, test_pdca_cycle):
         "error": None
     }
 
-    # Call plan node
-    result = pdca_engine._plan_node(state)
+    # Call plan node (async)
+    result = await pdca_engine._plan_node(state)
 
     # Assertions
     assert result["phase"] == "plan"
     assert "plan_details" in result
 
 
-def test_do_node_success(pdca_engine, test_pdca_cycle):
+@pytest.mark.asyncio
+async def test_do_node_success(pdca_engine, test_pdca_cycle):
     """Test do node with successful agent execution."""
     # Create PDCAState with agent_input
     state: PDCAState = {
@@ -66,23 +69,24 @@ def test_do_node_success(pdca_engine, test_pdca_cycle):
         "error": None
     }
 
-    # Mock executor
+    # Mock executor with async execute method
     mock_executor = Mock()
-    mock_executor.execute.return_value = {
+    mock_executor.execute = AsyncMock(return_value={
         "status": "success",
         "output": "Test response"
-    }
+    })
 
     # Patch AgentRegistry.get_executor to return mock
     with patch('app.pdca.engine.AgentRegistry.get_executor', return_value=mock_executor):
-        result = pdca_engine._do_node(state)
+        result = await pdca_engine._do_node(state)
 
     # Assertions
     assert result["phase"] == "do"
     assert result["execution_result"]["status"] == "success"
 
 
-def test_check_node_passed(pdca_engine, test_pdca_cycle):
+@pytest.mark.asyncio
+async def test_check_node_passed(pdca_engine, test_pdca_cycle):
     """Test check node with passed execution."""
     # Create PDCAState with successful execution result
     state: PDCAState = {
@@ -104,8 +108,8 @@ def test_check_node_passed(pdca_engine, test_pdca_cycle):
         "error": None
     }
 
-    # Call check node
-    result = pdca_engine._check_node(state)
+    # Call check node (async)
+    result = await pdca_engine._check_node(state)
 
     # Assertions
     assert result["phase"] == "check"
