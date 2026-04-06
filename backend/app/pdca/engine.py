@@ -7,7 +7,7 @@ from datetime import datetime
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.pdca.state import PDCAState
 from app.pdca.agents.registry import AgentRegistry
@@ -23,7 +23,7 @@ from app.pdca.models import PDCACycleUpdate
 class PDCAEngine:
     """PDCA workflow engine using LangGraph StateGraph."""
 
-    def __init__(self, db_session: Session):
+    def __init__(self, db_session: AsyncSession):
         """
         Initialize the PDCA engine.
 

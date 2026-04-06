@@ -9,9 +9,9 @@ from app.pdca.state import PDCAState
 
 
 @pytest.fixture
-def pdca_engine(db_session):
+def pdca_engine(db):
     """Create PDCAEngine fixture."""
-    return PDCAEngine(db_session)
+    return PDCAEngine(db)
 
 
 def test_plan_node(pdca_engine, test_pdca_cycle):
