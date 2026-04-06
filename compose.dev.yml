@@ -1,0 +1,147 @@
+# Development Environment Compose Configuration with Kong
+# Features:
+# - Frontend and Backend hot reload
+# - Exposed ports for direct access
+# - Development-friendly settings
+# - Mailcatcher for email testing
+# - Kong API Gateway (via compose.kong.yml)
+
+services:
+  db:
+    restart: "no"
+    ports:
+      - "5432:5432"
+
+  adminer:
+    restart: "no"
+    ports:
+      - "8080:8080"
+    networks:
+      - kong-network
+      - default
+
+  backend:
+    restart: "no"
+    ports:
+      - "8002:8000"  # Direct access (different from Kong's 8000)
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command:
+      - fastapi
+      - run
+      - --reload
+      - "app/main.py"
+    develop:
+      watch:
+        - path: ./backend
+          action: sync
+          target: /app/backend
+          ignore:
+            - ./backend/.venv
+            - .venv
+        - path: ./backend/pyproject.toml
+          action: rebuild
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/.venv
+      - ./backend/htmlcov:/app/backend/htmlcov
+    networks:
+      - kong-network
+      - default
+    environment:
+      SMTP_HOST: "mailcatcher"
+      SMTP_PORT: "1025"
+      SMTP_TLS: "false"
+      EMAILS_FROM_EMAIL: "noreply@example.com"
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    restart: "no"
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  redis:
+    restart: "no"
+    ports:
+      - "6379:6379"
+
+  redis-commander:
+    restart: "no"
+    ports:
+      - "8081:8081"
+
+  frontend:
+    restart: "no"
+    ports:
+      - "5173:5173"
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.dev
+      args:
+        - VITE_API_URL=http://localhost:8000  # Through Kong
+        - NODE_ENV=development
+    environment:
+      - VITE_API_PROXY_TARGET=http://backend:8000  # Vite proxy target for API requests
+    develop:
+      watch:
+        - path: ./frontend
+          action: sync
+          target: /app/frontend
+          ignore:
+            - ./frontend/node_modules
+            - ./frontend/dist
+            - ./frontend/.vite
+            - ./frontend/blob-report
+            - ./frontend/test-results
+        - path: ./frontend/package.json
+          action: rebuild
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/node_modules
+    networks:
+      - kong-network
+      - default
+
+  # Cypress E2E testing service (dev only)
+  cypress:
+    image: cypress/included:14.3.2
+    working_dir: /e2e
+    network_mode: "host"
+    depends_on:
+      - backend
+      - frontend
+    env_file:
+      - .env.dev
+    environment:
+      - CYPRESS_BASE_URL=http://localhost:5173
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - CYPRESS_INSTALL_BINARY=0
+    volumes:
+      - ./frontend:/e2e
+      - cypress-dev-node-modules:/e2e/node_modules
+      - ./frontend/cypress/videos:/e2e/cypress/videos
+      - ./frontend/cypress/screenshots:/e2e/cypress/screenshots
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "=== Installing dependencies ==="
+        npm install --prefer-offline --no-audit --loglevel=info
+        echo "=== Running Cypress tests ==="
+        cypress run
+    profiles:
+      - test
+
+networks:
+  kong-network:
+    name: ${STACK_NAME:-full-stack-fastapi-project}_kong
+    external: false
+  default:
+    name: ${STACK_NAME:-full-stack-fastapi-project}_default
+    external: false
+
+volumes:
+  cypress-dev-node-modules:

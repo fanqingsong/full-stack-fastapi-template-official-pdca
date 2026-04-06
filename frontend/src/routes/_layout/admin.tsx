@@ -1,0 +1,89 @@
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { createFileRoute, redirect } from "@tanstack/react-router"
+import { Suspense } from "react"
+
+import { type UserPublic, usersReadUsers, usersReadUserMe } from "@/client"
+import AddUser from "@/components/Admin/AddUser"
+import { columns, type UserTableData } from "@/components/Admin/columns"
+import { DataTable } from "@/components/Common/DataTable"
+import PendingUsers from "@/components/Pending/PendingUsers"
+import useAuth from "@/hooks/useAuth"
+
+function getUsersQueryOptions() {
+  return {
+    queryFn: async () => {
+      const response = await usersReadUsers({ query: { skip: 0, limit: 100 } })
+      if (response.error) {
+        throw response.error
+      }
+      return response.data
+    },
+    queryKey: ["users"],
+  }
+}
+
+export const Route = createFileRoute("/_layout/admin")({
+  component: Admin,
+  beforeLoad: async () => {
+    const response = await usersReadUserMe()
+    if (response.error) {
+      // Clear invalid token and redirect to login on authentication errors
+      const err = response.error as { detail?: string }
+      if (err.detail === "Could not validate credentials" || err.detail?.includes("not authenticated")) {
+        localStorage.removeItem("access_token")
+      }
+      throw redirect({
+        to: "/login",
+      })
+    }
+    if (!response.data.is_superuser) {
+      throw redirect({
+        to: "/",
+      })
+    }
+  },
+  head: () => ({
+    meta: [
+      {
+        title: "Admin - FastAPI Cloud",
+      },
+    ],
+  }),
+})
+
+function UsersTableContent() {
+  const { user: currentUser } = useAuth()
+  const { data: users } = useSuspenseQuery(getUsersQueryOptions())
+
+  const tableData: UserTableData[] = users.data.map((user: UserPublic) => ({
+    ...user,
+    isCurrentUser: currentUser?.id === user.id,
+  }))
+
+  return <DataTable columns={columns} data={tableData} />
+}
+
+function UsersTable() {
+  return (
+    <Suspense fallback={<PendingUsers />}>
+      <UsersTableContent />
+    </Suspense>
+  )
+}
+
+function Admin() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
+          <p className="text-muted-foreground">
+            Manage user accounts and permissions
+          </p>
+        </div>
+        <AddUser />
+      </div>
+      <UsersTable />
+    </div>
+  )
+}

@@ -1,0 +1,54 @@
+# Staging Environment Compose Configuration with Kong
+# Features:
+# - Production-like setup
+# - Email integration (requires SMTP config)
+# - No hot reload
+# - Health checks enabled
+# - Kong API Gateway (via compose.kong.yml)
+
+services:
+  adminer:
+    restart: always
+    networks:
+      - kong-network
+      - default
+
+  backend:
+    restart: always
+    networks:
+      - kong-network
+      - default
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command:
+      - fastapi
+      - run
+      - --workers
+      - "2"
+      - "app/main.py"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    restart: always
+    networks:
+      - kong-network
+      - default
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        - VITE_API_URL=https://api.${DOMAIN?Variable not set}
+        - NODE_ENV=production
+
+networks:
+  kong-network:
+    name: ${STACK_NAME:-full-stack-fastapi-project}_kong
+    external: false
+  default:
+    name: ${STACK_NAME:-full-stack-fastapi-project}_default
+    external: false
