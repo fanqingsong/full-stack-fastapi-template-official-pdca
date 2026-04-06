@@ -29,6 +29,18 @@ Make sure your editor is using the correct Python virtual environment, with the 
 
 Modify or add SQLModel models for data and SQL tables in `./backend/app/models.py`, API endpoints in `./backend/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/crud.py`.
 
+## PDCA Workflow Management
+
+This template includes a PDCA (Plan-Do-Check-Act) workflow management system:
+
+- **LangGraph Integration**: State machine-based workflow engine
+- **Multi-Agent Support**: Pluggable agent executors (OpenAI, Python, HTTP, Shell)
+- **Nested Cycles**: Support for hierarchical PDCA structures
+- **RESTful API**: Complete CRUD and execution endpoints
+- **Execution Logging**: Detailed logs for each phase
+
+See `backend/app/pdca/README.md` for details.
+
 ## VS Code
 
 There are already configurations in place to run the backend through the VS Code debugger, so that you can use breakpoints, pause and explore variables, etc.
