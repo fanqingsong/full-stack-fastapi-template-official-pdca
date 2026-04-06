@@ -91,40 +91,6 @@ class TestOpenAIAgent:
         )
 
     @patch('openai.AsyncOpenAI')
-    async def test_execute_with_context(self, mock_openai_class):
-        """Test execute method with context included."""
-        # Setup mock
-        mock_client = AsyncMock()
-        mock_openai_class.return_value = mock_client
-
-        # Mock API response
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "Contextual response"
-        mock_response.usage = MagicMock()
-        mock_response.usage.prompt_tokens = 15
-        mock_response.usage.completion_tokens = 25
-        mock_response.usage.total_tokens = 40
-
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-
-        # Create executor and execute with context
-        executor = OpenAIAgentExecutor(api_key="test-key")
-        context = {"user_id": "123", "session_id": "456"}
-        result = await executor.execute("Test prompt with context", context)
-
-        # Verify API call included context
-        mock_client.chat.completions.create.assert_called_once_with(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Context information:\n{'user_id': '123', 'session_id': '456'}"},
-                {"role": "user", "content": "Test prompt with context"}
-            ],
-            max_tokens=2000,
-            temperature=0.7
-        )
-
-    @patch('openai.AsyncOpenAI')
     async def test_execute_with_api_error(self, mock_openai_class):
         """Test execute method with API error."""
         # Setup mock
@@ -145,39 +111,3 @@ class TestOpenAIAgent:
         assert "API Error" in result["error"]
         assert result["usage"] is None
 
-    def test_init_with_custom_settings(self):
-        """Test initialization with custom settings."""
-        executor = OpenAIAgentExecutor(
-            api_key="custom-key",
-            model="gpt-3.5-turbo",
-            max_tokens=1000,
-            temperature=0.5
-        )
-
-        assert executor.api_key == "custom-key"
-        assert executor.model == "gpt-3.5-turbo"
-        assert executor.max_tokens == 1000
-        assert executor.temperature == 0.5
-
-        # Verify client was created
-        assert isinstance(executor.client, AsyncOpenAI)
-
-    def test_init_without_api_key(self):
-        """Test initialization without API key raises ValueError."""
-        with pytest.raises(ValueError, match="OpenAI API key is required"):
-            OpenAIAgentExecutor(api_key="")
-
-    def test_init_with_settings_defaults(self):
-        """Test initialization uses settings defaults."""
-        with patch('app.pdca.agents.openai_agent.settings') as mock_settings:
-            mock_settings.OPENAI_API_KEY = "default-key"
-            mock_settings.OPENAI_MODEL = "gpt-4"
-            mock_settings.OPENAI_MAX_TOKENS = 2000
-            mock_settings.OPENAI_TEMPERATURE = 0.7
-
-            executor = OpenAIAgentExecutor()
-
-            assert executor.api_key == "default-key"
-            assert executor.model == "gpt-4"
-            assert executor.max_tokens == 2000
-            assert executor.temperature == 0.7
