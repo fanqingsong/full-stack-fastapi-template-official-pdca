@@ -1,6 +1,7 @@
 """Tests for OpenAI Agent Executor."""
 
 import pytest
+import uuid
 from unittest.mock import AsyncMock, patch, MagicMock
 from openai import AsyncOpenAI
 
@@ -110,4 +111,16 @@ class TestOpenAIAgent:
         assert result["output"] is None
         assert "API Error" in result["error"]
         assert result["usage"] is None
+
+    @pytest.mark.asyncio
+    async def test_execute_with_missing_prompt(self):
+        """Test executing the agent when the prompt field is missing from input."""
+        executor = OpenAIAgentExecutor(api_key="test-key")
+
+        # Execute with empty input (missing prompt field)
+        result = await executor.execute({})
+
+        # Verify error handling
+        assert result["status"] == "error"
+        assert "Invalid input: task must be a non-empty string" in result["error"]
 
