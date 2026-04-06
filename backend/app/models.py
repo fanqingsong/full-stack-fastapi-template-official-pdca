@@ -1,9 +1,13 @@
 import uuid
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
 from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from app.pdca.models import PDCACycle, AgentConfig
 
 
 def get_datetime_utc() -> datetime:
@@ -55,6 +59,14 @@ class User(UserBase, table=True):
     )
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     files: list["File"] = Relationship(back_populates="owner", cascade_delete=True)
+    pdca_cycles: list["PDCACycle"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    agent_configs: list["AgentConfig"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 # Properties to return via API, id is always required
