@@ -30,6 +30,9 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
             model: Model name. If None, uses settings.OPENAI_MODEL
             max_tokens: Maximum tokens. If None, uses settings.OPENAI_MAX_TOKENS
             temperature: Temperature. If None, uses settings.OPENAI_TEMPERATURE
+
+        Raises:
+            ValueError: If api_key is missing or if parameters are invalid
         """
         self.api_key = api_key or settings.OPENAI_API_KEY
         self.model = model or settings.OPENAI_MODEL
@@ -38,6 +41,14 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
 
         if not self.api_key:
             raise ValueError("OpenAI API key is required")
+
+        # Validate temperature (must be between 0 and 2)
+        if not 0 <= self.temperature <= 2:
+            raise ValueError(f"Temperature must be between 0 and 2, got {self.temperature}")
+
+        # Validate max_tokens (must be positive)
+        if self.max_tokens <= 0:
+            raise ValueError(f"max_tokens must be positive, got {self.max_tokens}")
 
         self.client = AsyncOpenAI(api_key=self.api_key)
 
@@ -74,19 +85,22 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
         if not self.validate_input(task, context):
             return {
                 "status": "error",
-                "error": "Invalid input: task must be a non-empty string",
+                "error": "Invalid input: task must be a non-empty string and context must be a dictionary if provided",
                 "output": None,
                 "usage": None
             }
 
         try:
             # Prepare messages
-            messages = [{"role": "user", "content": task}]
+            messages = []
 
-            # Add context if provided
+            # Add context if provided (system message first)
             if context:
                 context_message = f"Context information:\n{context}"
-                messages.insert(-1, {"role": "system", "content": context_message})
+                messages.append({"role": "system", "content": context_message})
+
+            # Add user task message
+            messages.append({"role": "user", "content": task})
 
             # Make API call
             response = await self.client.chat.completions.create(
