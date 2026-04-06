@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from openai import AsyncOpenAI
 from openai import OpenAIError
 
-from ..core.config import settings
+from app.core.config import settings
 from .base import BaseAgentExecutor
 
 logger = logging.getLogger(__name__)

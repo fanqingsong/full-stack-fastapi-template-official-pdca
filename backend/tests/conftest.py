@@ -60,9 +60,13 @@ def test_pdca_cycle(db: Session, test_user: User) -> PDCACycle:
     """创建测试用的PDCA循环"""
     cycle = PDCACycle(
         name="Test PDCA Cycle",
-        goal="Test goal",
         agent_type="openai",
-        agent_input={"prompt": "test"},
+        state_data={
+            "goal": "Test goal",
+            "agent_input": {"prompt": "test"},
+            "plan_details": {},
+            "check_criteria": {}
+        },
         owner_id=test_user.id
     )
     db.add(cycle)

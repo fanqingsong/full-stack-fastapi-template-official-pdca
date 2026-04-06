@@ -4,6 +4,7 @@ PDCA CRUD Operations
 This module contains all CRUD operations for PDCA cycles, agent configs, and execution logs.
 """
 from typing import List, Optional, Tuple
+from uuid import UUID
 from sqlmodel import Session, select, col
 from app.pdca.models import PDCACycle, AgentConfig, ExecutionLog
 
@@ -29,7 +30,7 @@ def create_pdca_cycle(session: Session, cycle_data: dict, owner_id: int) -> PDCA
     return cycle
 
 
-def get_pdca_cycle(session: Session, cycle_id: int) -> Optional[PDCACycle]:
+def get_pdca_cycle(session: Session, cycle_id: UUID) -> Optional[PDCACycle]:
     """
     Get a PDCA cycle by ID.
 
@@ -141,7 +142,7 @@ def delete_pdca_cycle(session: Session, cycle: PDCACycle) -> bool:
     return True
 
 
-def get_child_cycles(session: Session, parent_id: int) -> List[PDCACycle]:
+def get_child_cycles(session: Session, parent_id: UUID) -> List[PDCACycle]:
     """
     Get all child cycles of a parent cycle.
 
@@ -239,7 +240,7 @@ def list_agent_configs(
 
 def create_execution_log(
     session: Session,
-    cycle_id: int,
+    cycle_id: UUID,
     phase: str,
     level: str,
     message: str,
@@ -264,7 +265,7 @@ def create_execution_log(
         phase=phase,
         level=level,
         message=message,
-        metadata=metadata,
+        log_metadata=metadata or {},
     )
     session.add(log)
     session.commit()
@@ -274,7 +275,7 @@ def create_execution_log(
 
 def get_cycle_logs(
     session: Session,
-    cycle_id: int,
+    cycle_id: UUID,
     skip: int = 0,
     limit: int = 100,
 ) -> List[ExecutionLog]:
