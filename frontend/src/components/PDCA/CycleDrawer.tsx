@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import type { PdcaCyclePublic } from "@/client"
 import DetailTab from "./DetailTab"
 import ExecutionTab from "./ExecutionTab"
+import AnalyticsTab from "./AnalyticsTab"
+import LogsTab from "./LogsTab"
+import ChildrenTab from "./ChildrenTab"
 
 interface CycleDrawerProps {
   cycle: PdcaCyclePublic | null
@@ -50,21 +53,15 @@ export default function CycleDrawer({ cycle, isOpen, onClose }: CycleDrawerProps
             </TabsContent>
 
             <TabsContent value="analytics" className="p-6 mt-0">
-              <div className="text-center py-12 text-muted-foreground">
-                Analytics tab - Coming soon
-              </div>
+              <AnalyticsTab cycle={cycle} />
             </TabsContent>
 
             <TabsContent value="logs" className="p-6 mt-0">
-              <div className="text-center py-12 text-muted-foreground">
-                Logs tab - Coming soon
-              </div>
+              <LogsTab cycle={cycle} />
             </TabsContent>
 
             <TabsContent value="children" className="p-6 mt-0">
-              <div className="text-center py-12 text-muted-foreground">
-                Children tab - Coming soon
-              </div>
+              <ChildrenTab cycle={cycle} />
             </TabsContent>
           </div>
         </Tabs>
