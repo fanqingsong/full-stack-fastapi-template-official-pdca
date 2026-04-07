@@ -44,8 +44,18 @@ export default function CreateWizard({ isOpen, onClose, onSuccess }: CreateWizar
 
   const handleSubmit = async () => {
     try {
+      // Only send fields that API accepts
+      const createData = {
+        name: formData.name,
+        goal: formData.goal,
+        description: formData.description || null,
+        parent_id: formData.parent_id,
+        agent_type: formData.agent_type,
+        agent_input: formData.agent_input
+      }
+
       const response = await pdcaCreateCycle({
-        body: formData
+        body: createData
       })
 
       if (response.error) {
