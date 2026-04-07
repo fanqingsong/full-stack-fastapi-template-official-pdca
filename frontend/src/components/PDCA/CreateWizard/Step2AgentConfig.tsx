@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Input } from "@/components/ui/input"
+import { useState } from "react"
 
 interface Step2AgentConfigProps {
   data: {
@@ -19,27 +20,46 @@ export default function Step2AgentConfig({ data, onChange }: Step2AgentConfigPro
     <div className="space-y-4">
       <div>
         <Label>Agent Type *</Label>
-        <RadioGroup
-          value={data.agent_type}
-          onValueChange={(value) => updateField("agent_type", value)}
-          className="mt-3"
-        >
-          <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-accent">
-            <RadioGroupItem value="openai" id="openai" />
+        <div className="mt-3 space-y-3">
+          <div
+            className={`flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-accent ${
+              data.agent_type === "openai" ? "bg-accent border-primary" : ""
+            }`}
+            onClick={() => updateField("agent_type", "openai")}
+          >
+            <input
+              type="radio"
+              id="openai"
+              name="agent_type"
+              value="openai"
+              checked={data.agent_type === "openai"}
+              onChange={() => updateField("agent_type", "openai")}
+              className="h-4 w-4"
+            />
             <div className="flex-1">
               <label htmlFor="openai" className="font-medium cursor-pointer">OpenAI</label>
               <p className="text-xs text-muted-foreground">Use GPT models for intelligent processing</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-accent opacity-50">
-            <RadioGroupItem value="http_request" id="http" disabled />
+          <div
+            className="flex items-center space-x-2 p-4 border rounded-lg opacity-50"
+          >
+            <input
+              type="radio"
+              id="http"
+              name="agent_type"
+              value="http_request"
+              checked={data.agent_type === "http_request"}
+              disabled
+              className="h-4 w-4"
+            />
             <div className="flex-1">
               <label htmlFor="http" className="font-medium cursor-pointer">HTTP Request</label>
               <p className="text-xs text-muted-foreground">Call external APIs (coming soon)</p>
             </div>
           </div>
-        </RadioGroup>
+        </div>
       </div>
 
       <div>
