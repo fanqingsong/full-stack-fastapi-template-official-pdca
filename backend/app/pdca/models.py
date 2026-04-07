@@ -67,7 +67,8 @@ class PDCACycle(PDCACycleBase, table=True):
         nullable=False,
         ondelete="CASCADE"
     )
-    owner: Optional["User"] = Relationship(back_populates="pdca_cycles")
+    # Note: Relationship to User is removed to avoid circular imports
+    # Use owner_id foreign key directly for queries
 
 
 class AgentConfigBase(SQLModel):
@@ -99,7 +100,8 @@ class AgentConfig(AgentConfigBase, table=True):
         nullable=False,
         ondelete="CASCADE"
     )
-    owner: Optional["User"] = Relationship(back_populates="agent_configs")
+    # Note: Relationship to User is removed to avoid circular imports
+    # Use owner_id foreign key directly for queries
 
 
 class ExecutionLog(SQLModel, table=True):

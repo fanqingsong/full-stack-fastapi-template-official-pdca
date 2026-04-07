@@ -4,6 +4,10 @@ from app import crud
 from app.core.config import settings
 from app.models import User, UserCreate
 
+# Import PDCA models first, before creating the engine
+from app.pdca.models import PDCACycle, AgentConfig  # noqa: F401
+
+# Now create the engine after all models are imported
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 

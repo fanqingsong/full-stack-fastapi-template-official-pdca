@@ -11,7 +11,7 @@ from app.pdca.models import PDCACycle, AgentConfig, ExecutionLog
 
 # PDCA Cycle CRUD Operations
 
-def create_pdca_cycle(session: Session, cycle_data: dict, owner_id: int) -> PDCACycle:
+def create_pdca_cycle(session: Session, cycle_data: dict, owner_id: UUID) -> PDCACycle:
     """
     Create a new PDCA cycle.
 
@@ -48,8 +48,8 @@ def get_pdca_cycle(session: Session, cycle_id: UUID) -> Optional[PDCACycle]:
 
 def list_pdca_cycles(
     session: Session,
-    owner_id: int,
-    parent_id: Optional[int] = None,
+    owner_id: UUID,
+    parent_id: Optional[UUID] = None,
     phase: Optional[str] = None,
     status: Optional[str] = None,
     skip: int = 0,
@@ -161,7 +161,7 @@ def get_child_cycles(session: Session, parent_id: UUID) -> List[PDCACycle]:
 
 # Agent Config CRUD Operations
 
-def create_agent_config(session: Session, config_data: dict, owner_id: int) -> AgentConfig:
+def create_agent_config(session: Session, config_data: dict, owner_id: UUID) -> AgentConfig:
     """
     Create a new agent configuration.
 
@@ -180,7 +180,7 @@ def create_agent_config(session: Session, config_data: dict, owner_id: int) -> A
     return config
 
 
-def get_agent_config(session: Session, config_id: int) -> Optional[AgentConfig]:
+def get_agent_config(session: Session, config_id: UUID) -> Optional[AgentConfig]:
     """
     Get an agent configuration by ID.
 
@@ -198,7 +198,7 @@ def get_agent_config(session: Session, config_id: int) -> Optional[AgentConfig]:
 
 def list_agent_configs(
     session: Session,
-    owner_id: int,
+    owner_id: UUID,
     agent_type: Optional[str] = None,
     skip: int = 0,
     limit: int = 100,

@@ -43,6 +43,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Install minio package (newly added dependency) to venv
 RUN uv pip install "minio>=7.2.0" --target /app/.venv/lib/python3.10/site-packages
 
+# Install langgraph and langchain packages
+RUN uv pip install "langgraph>=0.2.0" "langchain>=0.3.0" "langchain-openai>=0.2.0" "openai>=1.0.0" --target /app/.venv/lib/python3.10/site-packages
+
+# Install zhipuai package
+RUN uv pip install "zhipuai>=2.1.0" --target /app/.venv/lib/python3.10/site-packages
+
 WORKDIR /app/backend/
 
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]

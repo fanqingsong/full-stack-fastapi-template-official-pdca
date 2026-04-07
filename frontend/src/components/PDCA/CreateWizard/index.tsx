@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { pdcaCreateCycle } from "@/client"
@@ -84,6 +84,7 @@ export default function CreateWizard({ isOpen, onClose, onSuccess }: CreateWizar
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create PDCA Cycle</DialogTitle>
+          <DialogDescription>Create a new PDCA cycle to manage your workflows with intelligent agent automation</DialogDescription>
         </DialogHeader>
 
         {/* Progress Indicator */}

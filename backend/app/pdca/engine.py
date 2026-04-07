@@ -124,7 +124,7 @@ class PDCAEngine:
 
         return state
 
-    async def _do_node(self, state: PDCAState) -> PDCAState:
+    async     def _do_node(self, state: PDCAState) -> PDCAState:
         """
         Do phase: Execute agent tasks.
 
@@ -158,6 +158,7 @@ class PDCAEngine:
             task = agent_input.get("prompt", "")
 
             # Execute agent (async)
+            logger.info(f"Executing agent task: {task}")
             result = await executor.execute(task, agent_input)
 
             # Create success log (run in executor since it's sync)
@@ -176,8 +177,13 @@ class PDCAEngine:
             # Update state with successful result
             state["execution_result"] = result
             state["error"] = None
+            logger.info(f"Agent execution completed successfully: {result}")
 
         except Exception as e:
+            # Log full error with traceback
+            logger.error(f"Agent execution failed with error: {str(e)}")
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            
             # Create error log (run in executor since it's sync)
             await loop.run_in_executor(
                 None,
@@ -187,14 +193,15 @@ class PDCAEngine:
                     phase="do",
                     level="error",
                     message=f"Agent execution failed: {str(e)}",
-                    metadata={"error": str(e)}
+                    metadata={"error": str(e), "traceback": traceback.format_exc()}
                 )
             )
 
             # Update state with error
             state["execution_result"] = {
                 "status": "error",
-                "error": str(e)
+                "error": str(e),
+                "traceback": traceback.format_exc()
             }
             state["error"] = str(e)
 
