@@ -1,6 +1,7 @@
 """OpenAI Agent Executor implementation."""
 
 import logging
+import time
 from typing import Any, Dict, Optional
 
 from openai import AsyncOpenAI
@@ -52,6 +53,9 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
 
         self.client = AsyncOpenAI(api_key=self.api_key)
 
+        # Initialize base agent
+        super().__init__(provider='openai', model=self.model)
+
     def validate_input(self, task: str, context: Optional[Dict[str, Any]] = None) -> bool:
         """
         Validate the input parameters for the OpenAI agent executor.
@@ -82,7 +86,14 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
         Returns:
             Dictionary containing the execution results
         """
+        start_time = time.time()
+        status = 'success'
+        prompt_tokens = 0
+        completion_tokens = 0
+        cost_usd = 0.0
+
         if not self.validate_input(task, context):
+            status = 'error'
             return {
                 "status": "error",
                 "error": "Invalid input: task must be a non-empty string and context must be a dictionary if provided",
@@ -118,6 +129,14 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
                 "total_tokens": response.usage.total_tokens,
             }
 
+            # Extract token usage
+            prompt_tokens = response.usage.prompt_tokens
+            completion_tokens = response.usage.completion_tokens
+
+            # Estimate cost (GPT-4 pricing as of 2024)
+            if self.model.startswith('gpt-4'):
+                cost_usd = (prompt_tokens * 0.00003 + completion_tokens * 0.00006)
+
             return {
                 "status": "success",
                 "output": content,
@@ -126,6 +145,7 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
             }
 
         except OpenAIError as e:
+            status = 'error'
             logger.error(f"OpenAI API error: {str(e)}")
             return {
                 "status": "error",
@@ -134,6 +154,7 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
                 "usage": None
             }
         except Exception as e:
+            status = 'error'
             logger.error(f"Unexpected error: {str(e)}")
             return {
                 "status": "error",
@@ -141,3 +162,12 @@ class OpenAIAgentExecutor(BaseAgentExecutor):
                 "error": f"Unexpected error: {str(e)}",
                 "usage": None
             }
+        finally:
+            duration = time.time() - start_time
+            self._record_ai_metrics(
+                status=status,
+                duration=duration,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                cost_usd=cost_usd
+            )
