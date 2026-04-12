@@ -56,6 +56,14 @@ async def startup_event() -> None:
         logger.error(f"Failed to initialize MinIO bucket: {e}")
         # Don't fail startup - MinIO will retry on first access
 
+    # Update DB pool metrics
+    try:
+        from app.core.db import update_db_pool_metrics
+        update_db_pool_metrics()
+        logger.info("Database pool metrics initialized")
+    except Exception as e:
+        logger.warning(f"Failed to initialize DB pool metrics: {e}")
+
 
 @app.get("/metrics")
 async def metrics():

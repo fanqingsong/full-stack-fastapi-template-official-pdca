@@ -35,3 +35,28 @@ def init_db(session: Session) -> None:
             is_superuser=True,
         )
         user = crud.create_user(session=session, user_create=user_in)
+
+from app.core.metrics import db_connections_active
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def update_db_pool_metrics():
+    """
+    Update database connection pool metrics.
+
+    Should be called periodically to track pool state.
+    """
+    try:
+        if engine and engine.pool:
+            pool = engine.pool
+
+            # Get pool status
+            status = pool.status()
+            db_connections_active.labels(state='checked_out').set(status.checkedout)
+            db_connections_active.labels(state='active').set(pool.size() - pool.checkedout())
+            db_connections_active.labels(state='idle').set(pool.checkedout())
+
+    except Exception as e:
+        logger.warning(f"Failed to update DB pool metrics: {e}")
