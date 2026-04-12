@@ -162,3 +162,12 @@ def test_delete_item_not_enough_permissions(
     assert response.status_code == 403
     content = response.json()
     assert content["detail"] == "Not enough permissions"
+
+def test_metrics_endpoint(client: TestClient) -> None:
+    """Test that /metrics endpoint returns metrics."""
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/plain; charset=utf-8"
+    assert b"http_requests_total" in response.content
+

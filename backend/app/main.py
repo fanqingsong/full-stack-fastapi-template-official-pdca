@@ -2,11 +2,14 @@ import logging
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from fastapi.responses import Response
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
+from app.api.middleware import PrometheusMiddleware
 from app.core.config import settings
 from app.core.minio import minio_client
+from app.core.metrics import generate_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,10 @@ if settings.all_cors_origins:
         allow_headers=["*"],
     )
 
+# Add Prometheus middleware if metrics are enabled
+if settings.METRICS_ENABLED:
+    app.add_middleware(PrometheusMiddleware)
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
@@ -48,5 +55,19 @@ async def startup_event() -> None:
     except Exception as e:
         logger.error(f"Failed to initialize MinIO bucket: {e}")
         # Don't fail startup - MinIO will retry on first access
+
+
+@app.get("/metrics")
+async def metrics():
+    """
+    Prometheus metrics endpoint.
+
+    Returns metrics in Prometheus exposition format.
+    Only accessible if METRICS_ENABLED is True.
+    """
+    if not settings.METRICS_ENABLED:
+        return Response(content="Metrics disabled", status_code=404)
+
+    return Response(content=generate_metrics(), media_type="text/plain")
 
 

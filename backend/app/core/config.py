@@ -104,6 +104,11 @@ class Settings(BaseSettings):
     MINIO_BUCKET_NAME: str = "app-files"
     MINIO_REGION: str = "us-east-1"
 
+    # Monitoring Configuration
+    METRICS_ENABLED: bool = True
+    PROMETHEUS_RETENTION_DAYS: int = 15
+    GRAFANA_ADMIN_PASSWORD: str = "admin"
+
     # OpenAI Configuration
     OPENAI_API_KEY: str = Field(default="", validation_alias="OPENAI_API_KEY")
     OPENAI_MODEL: str = "gpt-4"
