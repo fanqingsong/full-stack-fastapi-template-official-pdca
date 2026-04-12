@@ -4,10 +4,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-display: "General Sans", ui-sans-serif, system-ui;
+  --font-body: "DM Sans", ui-sans-serif, system-ui;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -26,11 +32,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -42,83 +46,240 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.5982 0.10687 182.4689);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.5982 0.10687 182.4689);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Genesis Design System - Light Mode */
+  --background: #FAFAFA; /* Light warm gray background */
+  --foreground: #0A0A0A; /* Near-black text */
+  --card: #FFFFFF; /* White surface */
+  --card-foreground: #0A0A0A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A0A0A;
+  --primary: #6366F1; /* Indigo */
+  --primary-foreground: #FFFFFF;
+  --secondary: #20970B; /* Green - for brand highlights only */
+  --secondary-foreground: #FFFFFF;
+  --muted: #F5F5F5;
+  --muted-foreground: #9C9C9C; /* Neutral gray */
+  --accent: #F5F5F5;
+  --accent-foreground: #0A0A0A;
+  --destructive: #EF4444; /* Red */
+  --border: #E8E8EC; /* Subtle border */
+  --input: #E8E8EC;
+  --ring: rgba(99, 102, 241, 0.12); /* Indigo ring */
+  --success: #10B981; /* Green */
+  --warning: #F59E0B; /* Amber */
+  --error: #EF4444; /* Red */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0A0A0A;
+  --sidebar-primary: #6366F1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #0A0A0A;
+  --sidebar-border: #E8E8EC;
+  --sidebar-ring: rgba(99, 102, 241, 0.12);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.10687 182.4689);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.65 0.10687 182.4689);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Genesis Design System - Dark Mode */
+  --background: #0A0A0A; /* Near-black background */
+  --foreground: #FAFAFA; /* Light text */
+  --card: #141414; /* Dark card surface */
+  --card-foreground: #FAFAFA;
+  --popover: #141414;
+  --popover-foreground: #FAFAFA;
+  --primary: #818CF8; /* Lighter indigo for dark mode */
+  --primary-foreground: #FFFFFF;
+  --secondary: #22C55E; /* Lighter green for dark mode */
+  --secondary-foreground: #FFFFFF;
+  --muted: #1A1A1A;
+  --muted-foreground: #6B6B6B; /* Gray for secondary text */
+  --accent: #1A1A1A;
+  --accent-foreground: #FAFAFA;
+  --destructive: #F87171; /* Lighter red */
+  --border: #27272A; /* Dark border */
+  --input: #27272A;
+  --ring: rgba(129, 140, 248, 0.2); /* Lighter indigo ring */
+  --success: #22C55E; /* Lighter green */
+  --warning: #FBBF24; /* Lighter amber */
+  --error: #F87171; /* Lighter red */
+  --sidebar: #141414;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #818CF8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1A1A1A;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #27272A;
+  --sidebar-ring: rgba(129, 140, 248, 0.2);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Genesis Typography Scale */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  h1 {
+    font-size: 60px; /* Headline */
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: 32px; /* Section heading */
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 24px; /* Subhead */
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+  }
+
+  h4 {
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+  }
+
+  p {
+    font-size: 15px; /* Body */
+    line-height: 1.6;
+  }
+
+  small {
+    font-size: 13px; /* Small */
+    line-height: 1.5;
+  }
+
+  /* Code and pre */
+  code, pre {
+    @apply font-code;
+  }
+
   button,
   [role="button"] {
+    @apply font-medium;
     cursor: pointer;
+    transition: all 200ms ease;
+  }
+
+  /* Focus styles with Genesis indigo ring */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
   }
 }
+
+/* Genesis Component Utilities */
+@layer components {
+  /* Buttons - Genesis Design */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground rounded-sm px-4 py-2.5;
+    transition: all 200ms ease;
+  }
+
+  .btn-primary:hover {
+    @apply bg-[#4F46E5];
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  }
+
+  .btn-secondary {
+    @apply bg-transparent border border-border text-foreground rounded-sm px-4 py-2.5;
+    transition: all 200ms ease;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-accent;
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-foreground rounded-sm px-4 py-2.5;
+    transition: all 200ms ease;
+  }
+
+  .btn-ghost:hover {
+    @apply bg-accent;
+  }
+
+  .btn-destructive {
+    @apply text-error border border-error rounded-sm px-4 py-2.5;
+    transition: all 200ms ease;
+  }
+
+  .btn-destructive:hover {
+    @apply bg-error text-white;
+  }
+
+  /* Card - Genesis Design */
+  .card-genesis {
+    @apply bg-card border border-border rounded-lg overflow-hidden;
+    transition: all 200ms ease;
+  }
+
+  .card-genesis:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Inputs - Genesis Design */
+  .input-genesis {
+    @apply bg-card border border-border rounded-sm px-3.5 py-2.5 text-sm;
+    transition: all 200ms ease;
+  }
+
+  .input-genesis:focus {
+    @apply border-primary;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+
+  .input-genesis::placeholder {
+    @apply text-muted-foreground;
+  }
+
+  /* Chips - Genesis Design */
+  .chip {
+    @apply rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs font-medium;
+    transition: all 200ms ease;
+  }
+
+  .chip-active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .chip-success {
+    @apply bg-success/10 text-success;
+  }
+
+  .chip-warning {
+    @apply bg-warning/10 text-warning;
+  }
+
+  .chip-error {
+    @apply bg-error/10 text-error;
+  }
+
+  /* Container - Genesis spacing */
+  .container-genesis {
+    @apply max-w-[1280px] mx-auto px-6;
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    @apply py-8 md:py-12 lg:py-16;
+  }
+}
+
