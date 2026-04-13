@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from pydantic import field_validator
 from sqlalchemy import DateTime, String
 from sqlmodel import Field, Relationship, SQLModel, Column
 
@@ -18,11 +19,15 @@ def get_datetime_utc() -> datetime:
 class WebTestBase(SQLModel):
     url: str = Field(max_length=2048)
     description: str = Field(max_length=5000)
-    status: str = Field(
-        default="pending",
-        max_length=20,
-        sa_column=Column(String(20), nullable=False, default="pending")
-    )
+    status: str = Field(max_length=20, default="pending")
+
+    @field_validator('status')
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        valid_statuses = ["pending", "running", "completed", "failed", "cancelled"]
+        if v not in valid_statuses:
+            raise ValueError(f"Status must be one of {valid_statuses}")
+        return v
 
 
 class WebTest(WebTestBase, table=True):
