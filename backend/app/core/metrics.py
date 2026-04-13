@@ -5,13 +5,20 @@ This module defines all Prometheus metrics used across the application,
 including HTTP requests, PDCA business metrics, AI agent calls, and infrastructure metrics.
 """
 import logging
-from prometheus_client import Counter, Gauge, Histogram, Registry
+from prometheus_client import Counter, Gauge, Histogram
+# In prometheus_client >= 0.25.0, Registry is renamed to REGISTRY
+try:
+    from prometheus_client import REGISTRY
+except ImportError:
+    from prometheus_client import Registry
+    REGISTRY = Registry()
 from prometheus_client.exposition import generate_latest
 
 logger = logging.getLogger(__name__)
 
-# Create a custom registry to avoid conflicts with default metrics
-registry = Registry()
+# Use the default REGISTRY instance
+# Note: REGISTRY is a pre-instantiated CollectorRegistry, not callable
+registry = REGISTRY
 
 # ==============================================================================
 # HTTP Request Metrics
