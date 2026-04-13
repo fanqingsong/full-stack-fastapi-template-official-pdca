@@ -1,5 +1,6 @@
 """API routes for web automation testing."""
 
+import asyncio
 import uuid
 from typing import Any
 
@@ -10,7 +11,7 @@ from app.api.deps import CurrentUser, SessionDep
 from app.core.config import settings
 from app.models import Message
 from app.web_tests import crud
-from app.web_tests.executor import check_claude_available, validate_url
+from app.web_tests.executor import check_claude_available, validate_url, execute_web_test
 from app.web_tests.models import (
     WebTest,
     WebTestCreate,
@@ -65,7 +66,14 @@ def create_web_test(
         owner_id=current_user.id
     )
 
-    # TODO: Schedule background task to execute the test (Task #19)
+    # Start background task to execute the test
+    asyncio.create_task(
+        execute_web_test(
+            test_id=web_test.id,
+            session=session,
+            websocket_manager=websocket_manager
+        )
+    )
 
     return web_test
 
@@ -237,7 +245,14 @@ def retry_web_test(
         session=session, db_web_test=web_test, status="pending"
     )
 
-    # TODO: Reschedule background task to execute the test (Task #19)
+    # Start background task to execute the test
+    asyncio.create_task(
+        execute_web_test(
+            test_id=updated_web_test.id,
+            session=session,
+            websocket_manager=websocket_manager
+        )
+    )
 
     return updated_web_test
 
