@@ -2,10 +2,10 @@
 
 import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import DateTime, String
+from sqlmodel import Field, Relationship, SQLModel, Column
 
 if TYPE_CHECKING:
     from app.models import User
@@ -18,8 +18,10 @@ def get_datetime_utc() -> datetime:
 class WebTestBase(SQLModel):
     url: str = Field(max_length=2048)
     description: str = Field(max_length=5000)
-    status: Literal["pending", "running", "completed", "failed", "cancelled"] = Field(
-        default="pending"
+    status: str = Field(
+        default="pending",
+        max_length=20,
+        sa_column=Column(String(20), nullable=False, default="pending")
     )
 
 
