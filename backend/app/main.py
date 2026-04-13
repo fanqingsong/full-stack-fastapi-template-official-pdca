@@ -6,10 +6,18 @@ from fastapi.responses import Response
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
-from app.api.middleware import PrometheusMiddleware
 from app.core.config import settings
 from app.core.minio import minio_client
-from app.core.metrics import generate_metrics
+
+# Try to import monitoring components (optional)
+try:
+    from app.api.middleware import PrometheusMiddleware
+    from app.core.metrics import generate_metrics
+    HAS_MONITORING = True
+except ImportError:
+    HAS_MONITORING = False
+    PrometheusMiddleware = None
+    generate_metrics = None
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +45,8 @@ if settings.all_cors_origins:
         allow_headers=["*"],
     )
 
-# Add Prometheus middleware if metrics are enabled
-if settings.METRICS_ENABLED:
+# Add Prometheus middleware if metrics are enabled and available
+if settings.METRICS_ENABLED and HAS_MONITORING and PrometheusMiddleware:
     app.add_middleware(PrometheusMiddleware)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
@@ -71,10 +79,13 @@ async def metrics():
     Prometheus metrics endpoint.
 
     Returns metrics in Prometheus exposition format.
-    Only accessible if METRICS_ENABLED is True.
+    Only accessible if METRICS_ENABLED is True and monitoring components are available.
     """
     if not settings.METRICS_ENABLED:
         return Response(content="Metrics disabled", status_code=404)
+
+    if not HAS_MONITORING or generate_metrics is None:
+        return Response(content="Monitoring not available", status_code=503)
 
     return Response(content=generate_metrics(), media_type="text/plain")
 

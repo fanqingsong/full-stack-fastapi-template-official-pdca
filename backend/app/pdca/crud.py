@@ -7,9 +7,17 @@ from typing import List, Optional, Tuple
 from uuid import UUID
 from sqlmodel import Session, select, col
 from app.pdca.models import PDCACycle, AgentConfig, ExecutionLog
-from app.core.metrics import pdca_cycles_created_total, pdca_stage_duration_seconds
 import time
 from typing import Optional
+
+# Try to import metrics (optional)
+try:
+    from app.core.metrics import pdca_cycles_created_total, pdca_stage_duration_seconds
+    HAS_METRICS = True
+except ImportError:
+    HAS_METRICS = False
+    pdca_cycles_created_total = None
+    pdca_stage_duration_seconds = None
 
 
 # PDCA Cycle CRUD Operations
@@ -33,19 +41,20 @@ def create_pdca_cycle(session: Session, cycle_data: dict, owner_id: UUID) -> PDC
     session.commit()
     session.refresh(cycle)
 
-    # Record metric
-    try:
-        pdca_cycles_created_total.labels(
-            user_id=str(owner_id),
-            department=cycle_data.get('department', 'unknown')
-        ).inc()
+    # Record metric (if available)
+    if HAS_METRICS:
+        try:
+            pdca_cycles_created_total.labels(
+                user_id=str(owner_id),
+                department=cycle_data.get('department', 'unknown')
+            ).inc()
 
-        duration = time.time() - start_time
-        pdca_stage_duration_seconds.labels(stage='create').observe(duration)
-    except Exception as e:
-        # Log but don't fail the operation
-        import logging
-        logging.getLogger(__name__).warning(f"Failed to record PDCA metric: {e}")
+            duration = time.time() - start_time
+            pdca_stage_duration_seconds.labels(stage='create').observe(duration)
+        except Exception as e:
+            # Log but don't fail the operation
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to record PDCA metric: {e}")
 
     return cycle
 

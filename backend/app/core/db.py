@@ -10,6 +10,14 @@ from app.pdca.models import PDCACycle, AgentConfig  # noqa: F401
 # Now create the engine after all models are imported
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
+# Import metrics module (optional - may not be available in all environments)
+try:
+    from app.core import metrics as metrics_module
+    HAS_METRICS = True
+except ImportError:
+    HAS_METRICS = False
+    metrics_module = None
+
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
@@ -36,7 +44,13 @@ def init_db(session: Session) -> None:
         )
         user = crud.create_user(session=session, user_create=user_in)
 
-from app.core.metrics import db_connections_active
+if HAS_METRICS and metrics_module:
+    # Only import and use metrics if the prometheus_client package is available
+    from app.core.metrics import db_connections_active
+else:
+    # Create a dummy function if metrics are not available
+    db_connections_active = None
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -48,6 +62,10 @@ def update_db_pool_metrics():
 
     Should be called periodically to track pool state.
     """
+    if not HAS_METRICS or db_connections_active is None:
+        # Metrics not available, skip
+        return
+
     try:
         if engine and engine.pool:
             pool = engine.pool

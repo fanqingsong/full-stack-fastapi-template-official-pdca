@@ -2,12 +2,22 @@
 import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
-from app.core.metrics import (
-    ai_requests_total,
-    ai_request_duration_seconds,
-    ai_tokens_used_total,
-    ai_cost_usd_total,
-)
+
+# Try to import metrics (optional)
+try:
+    from app.core.metrics import (
+        ai_requests_total,
+        ai_request_duration_seconds,
+        ai_tokens_used_total,
+        ai_cost_usd_total,
+    )
+    HAS_METRICS = True
+except ImportError:
+    HAS_METRICS = False
+    ai_requests_total = None
+    ai_request_duration_seconds = None
+    ai_tokens_used_total = None
+    ai_cost_usd_total = None
 
 
 class BaseAgentExecutor(ABC):
@@ -42,6 +52,9 @@ class BaseAgentExecutor(ABC):
             completion_tokens: Number of completion tokens used
             cost_usd: Estimated cost in USD
         """
+        if not HAS_METRICS:
+            return
+
         try:
             ai_requests_total.labels(
                 provider=self.provider,
