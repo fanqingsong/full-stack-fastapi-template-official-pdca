@@ -7,6 +7,9 @@ from app.models import User, UserCreate
 # Import PDCA models first, before creating the engine
 from app.pdca.models import PDCACycle, AgentConfig  # noqa: F401
 
+# Import web_tests models before creating the engine
+from app.web_tests.models import WebTest, WebTestResult  # noqa: F401
+
 # Now create the engine after all models are imported
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 

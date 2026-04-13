@@ -8,6 +8,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.pdca.models import PDCACycle, AgentConfig
+    from app.web_tests.models import WebTest, WebTestResult
 
 
 def get_datetime_utc() -> datetime:
@@ -59,6 +60,7 @@ class User(UserBase, table=True):
     )
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     files: list["File"] = Relationship(back_populates="owner", cascade_delete=True)
+    web_tests: list["WebTest"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 

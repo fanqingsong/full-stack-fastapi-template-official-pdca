@@ -9,6 +9,7 @@ from app.core.db import engine, init_db
 from app.main import app
 from app.models import Item, User
 from app.pdca.models import PDCACycle, AgentConfig, ExecutionLog
+from app.web_tests.models import WebTest, WebTestResult
 from tests.utils.user import authentication_token_from_email, create_random_user
 from tests.utils.utils import get_superuser_token_headers
 
@@ -23,6 +24,10 @@ def db() -> Generator[Session, None, None]:
         statement = delete(PDCACycle)
         session.execute(statement)
         statement = delete(AgentConfig)
+        session.execute(statement)
+        statement = delete(WebTestResult)
+        session.execute(statement)
+        statement = delete(WebTest)
         session.execute(statement)
         statement = delete(Item)
         session.execute(statement)
