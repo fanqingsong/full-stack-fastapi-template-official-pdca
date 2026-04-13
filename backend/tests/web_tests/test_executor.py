@@ -6,6 +6,7 @@ from app.web_tests.executor import (
     check_claude_available,
     validate_url,
     parse_claude_output,
+    construct_claude_prompt,
     ParsedResult
 )
 
@@ -63,3 +64,29 @@ def test_parse_claude_output_failure():
 
     assert result.success is False
     assert result.error == "Login form not found"
+
+
+def test_parse_claude_output_with_invalid_screenshot_path():
+    """Test parsing Claude output with non-existent screenshot path"""
+    logs = """
+[ACTION] Navigating to https://example.com
+[SCREENSHOT] /nonexistent/path/screenshot.png
+[RESULT]: PASS
+"""
+    result = parse_claude_output(logs)
+
+    assert result.success is True
+    assert len(result.screenshots) == 0  # Path doesn't exist, should not be added
+
+
+def test_construct_claude_prompt():
+    """Test constructing Claude CLI prompt"""
+    prompt = construct_claude_prompt("https://example.com", "Test the login functionality")
+
+    assert "https://example.com" in prompt
+    assert "Test the login functionality" in prompt
+    assert "[ACTION]" in prompt
+    assert "[OBSERVE]" in prompt
+    assert "[SCREENSHOT]" in prompt
+    assert "[RESULT]" in prompt
+    assert "[ERROR]" in prompt

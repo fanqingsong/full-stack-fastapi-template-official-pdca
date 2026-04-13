@@ -1,7 +1,15 @@
+import os
 import subprocess
 from dataclasses import dataclass
 from urllib.parse import urlparse
 from typing import Optional, List
+
+# Claude CLI output format tags
+TAG_SCREENSHOT = "[SCREENSHOT]"
+TAG_RESULT = "[RESULT]"
+TAG_ERROR = "[ERROR]"
+TAG_ACTION = "[ACTION]"
+TAG_OBSERVE = "[OBSERVE]"
 
 
 @dataclass
@@ -18,10 +26,11 @@ def check_claude_available() -> bool:
         result = subprocess.run(
             ["claude", "--version"],
             capture_output=True,
-            check=True
+            check=True,
+            timeout=30
         )
         return result.returncode == 0
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
         return False
 
 
@@ -43,13 +52,15 @@ def parse_claude_output(logs: str) -> ParsedResult:
 
     for line in logs.split('\n'):
         line = line.strip()
-        if line.startswith('[SCREENSHOT]'):
-            screenshot_path = line.split('[SCREENSHOT]')[1].strip()
-            result.screenshots.append(screenshot_path)
-        elif line.startswith('[RESULT]'):
+        if line.startswith(TAG_SCREENSHOT):
+            screenshot_path = line.split(TAG_SCREENSHOT)[1].strip()
+            # Validate path exists and is secure
+            if os.path.exists(screenshot_path) and os.path.isfile(screenshot_path):
+                result.screenshots.append(screenshot_path)
+        elif line.startswith(TAG_RESULT):
             result.success = 'PASS' in line.upper()
-        elif line.startswith('[ERROR]'):
-            result.error = line.split('[ERROR]')[1].strip()
+        elif line.startswith(TAG_ERROR):
+            result.error = line.split(TAG_ERROR)[1].strip()
 
     return result
 
@@ -68,8 +79,8 @@ Please:
 4. Take screenshots of important steps
 
 Format your response:
-- Start each action with [ACTION]
-- Start each observation with [OBSERVE]
-- Start each screenshot with [SCREENSHOT] followed by the file path
-- End with [RESULT]: PASS or FAIL
-- If failed, include [ERROR]: description"""
+- Start each action with {TAG_ACTION}
+- Start each observation with {TAG_OBSERVE}
+- Start each screenshot with {TAG_SCREENSHOT} followed by the file path
+- End with {TAG_RESULT}: PASS or FAIL
+- If failed, include {TAG_ERROR}: description"""
