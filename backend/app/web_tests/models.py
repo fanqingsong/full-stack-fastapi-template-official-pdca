@@ -41,7 +41,9 @@ class WebTest(WebTestBase, table=True):
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
 
     owner: "User" = Relationship(back_populates="web_tests")
-    results: list["WebTestResult"] = Relationship(back_populates="test")
+    results: list["WebTestResult"] = Relationship(
+        back_populates="test", passive_deletes="all"
+    )
 
 
 class WebTestPublic(WebTestBase):
