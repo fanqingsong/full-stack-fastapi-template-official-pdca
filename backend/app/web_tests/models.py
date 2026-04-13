@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Literal
 
+from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -26,6 +27,7 @@ class WebTest(WebTestBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
     )
     started_at: datetime | None = None
     completed_at: datetime | None = None
@@ -70,7 +72,10 @@ class WebTestResult(WebTestResultBase, table=True):
     video_path: str | None = None
     execution_duration: float | None = None
     claude_version: str | None = None
-    created_at: datetime | None = Field(default_factory=get_datetime_utc)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
 
     test: WebTest = Relationship(back_populates="results")
 
