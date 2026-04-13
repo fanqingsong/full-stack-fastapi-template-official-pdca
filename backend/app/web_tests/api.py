@@ -163,6 +163,7 @@ def delete_web_test(
     Delete a web test.
 
     Only allows deletion of tests owned by the current user.
+    Only allows deletion of pending or failed tests (not running tests).
     """
     web_test = crud.get_web_test_by_id(session=session, web_test_id=id)
 
@@ -176,6 +177,13 @@ def delete_web_test(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
+        )
+
+    # Only allow deletion of pending or failed tests
+    if web_test.status == "running":
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete running test. Cancel it first."
         )
 
     crud.delete_web_test(session=session, db_web_test=web_test)
