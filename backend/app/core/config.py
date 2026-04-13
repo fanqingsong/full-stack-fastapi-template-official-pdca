@@ -121,6 +121,12 @@ class Settings(BaseSettings):
     ZHIPU_MAX_TOKENS: int = 2000
     ZHIPU_TEMPERATURE: float = 0.7
 
+    # Web Test Configuration
+    WEB_TEST_TIMEOUT: int = 600  # 10 minutes in seconds
+    MAX_CONCURRENT_TESTS: int = 3
+    MINIO_SCREENSHOTS_BUCKET: str = "web-test-screenshots"
+    CLAUDE_CLI_PATH: str = "claude"  # Path to claude CLI executable
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (
