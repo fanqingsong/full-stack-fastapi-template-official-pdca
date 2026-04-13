@@ -49,6 +49,9 @@ RUN uv pip install "langgraph>=0.2.0" "langchain>=0.3.0" "langchain-openai>=0.2.
 # Install zhipuai package
 RUN uv pip install "zhipuai>=2.1.0" --target /app/.venv/lib/python3.10/site-packages
 
+# Install monitoring packages
+RUN uv pip install "prometheus-client>=0.20.0,<1.0.0" "psutil>=5.9.0,<6.0.0" --target /app/.venv/lib/python3.10/site-packages
+
 WORKDIR /app/backend/
 
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
