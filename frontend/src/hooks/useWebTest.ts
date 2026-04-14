@@ -76,3 +76,30 @@ export function useWebTestResult(testId: string) {
     enabled: !!testId,
   });
 }
+
+/**
+ * Temporary hook for fetching all web tests for current user
+ * TODO: Replace with generated SDK hook after backend API routes are implemented
+ */
+export function useWebTests() {
+  return useQuery({
+    queryKey: ['web-tests'],
+    queryFn: async (): Promise<{ data: WebTestPublic[]; count: number }> => {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/web-tests/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch web tests');
+      }
+
+      return response.json();
+    },
+  });
+}

@@ -15,11 +15,13 @@ import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutWebTestsRouteImport } from './routes/_layout/web-tests'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutPdcaRouteImport } from './routes/_layout/pdca'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutFilesRouteImport } from './routes/_layout/files'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutWebTestsTestIdRouteImport } from './routes/_layout/web-tests.$testId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -50,6 +52,11 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutWebTestsRoute = LayoutWebTestsRouteImport.update({
+  id: '/web-tests',
+  path: '/web-tests',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -75,6 +82,11 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutWebTestsTestIdRoute = LayoutWebTestsTestIdRouteImport.update({
+  id: '/$testId',
+  path: '/$testId',
+  getParentRoute: () => LayoutWebTestsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -87,6 +99,8 @@ export interface FileRoutesByFullPath {
   '/items': typeof LayoutItemsRoute
   '/pdca': typeof LayoutPdcaRoute
   '/settings': typeof LayoutSettingsRoute
+  '/web-tests': typeof LayoutWebTestsRouteWithChildren
+  '/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -98,7 +112,9 @@ export interface FileRoutesByTo {
   '/items': typeof LayoutItemsRoute
   '/pdca': typeof LayoutPdcaRoute
   '/settings': typeof LayoutSettingsRoute
+  '/web-tests': typeof LayoutWebTestsRouteWithChildren
   '/': typeof LayoutIndexRoute
+  '/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,7 +128,9 @@ export interface FileRoutesById {
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/pdca': typeof LayoutPdcaRoute
   '/_layout/settings': typeof LayoutSettingsRoute
+  '/_layout/web-tests': typeof LayoutWebTestsRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +145,8 @@ export interface FileRouteTypes {
     | '/items'
     | '/pdca'
     | '/settings'
+    | '/web-tests'
+    | '/web-tests/$testId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -138,7 +158,9 @@ export interface FileRouteTypes {
     | '/items'
     | '/pdca'
     | '/settings'
+    | '/web-tests'
     | '/'
+    | '/web-tests/$testId'
   id:
     | '__root__'
     | '/_layout'
@@ -151,7 +173,9 @@ export interface FileRouteTypes {
     | '/_layout/items'
     | '/_layout/pdca'
     | '/_layout/settings'
+    | '/_layout/web-tests'
     | '/_layout/'
+    | '/_layout/web-tests/$testId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/web-tests': {
+      id: '/_layout/web-tests'
+      path: '/web-tests'
+      fullPath: '/web-tests'
+      preLoaderRoute: typeof LayoutWebTestsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/settings': {
       id: '/_layout/settings'
       path: '/settings'
@@ -241,8 +272,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/web-tests/$testId': {
+      id: '/_layout/web-tests/$testId'
+      path: '/$testId'
+      fullPath: '/web-tests/$testId'
+      preLoaderRoute: typeof LayoutWebTestsTestIdRouteImport
+      parentRoute: typeof LayoutWebTestsRoute
+    }
   }
 }
+
+interface LayoutWebTestsRouteChildren {
+  LayoutWebTestsTestIdRoute: typeof LayoutWebTestsTestIdRoute
+}
+
+const LayoutWebTestsRouteChildren: LayoutWebTestsRouteChildren = {
+  LayoutWebTestsTestIdRoute: LayoutWebTestsTestIdRoute,
+}
+
+const LayoutWebTestsRouteWithChildren = LayoutWebTestsRoute._addFileChildren(
+  LayoutWebTestsRouteChildren,
+)
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
@@ -250,6 +300,7 @@ interface LayoutRouteChildren {
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutPdcaRoute: typeof LayoutPdcaRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
+  LayoutWebTestsRoute: typeof LayoutWebTestsRouteWithChildren
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
@@ -259,6 +310,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutPdcaRoute: LayoutPdcaRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
+  LayoutWebTestsRoute: LayoutWebTestsRouteWithChildren,
   LayoutIndexRoute: LayoutIndexRoute,
 }
 

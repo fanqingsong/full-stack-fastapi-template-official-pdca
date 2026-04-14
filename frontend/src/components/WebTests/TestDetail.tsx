@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw, Redo2 } from 'lucide-react';
 import { useWebTest, useWebTestResult } from '@/hooks/useWebTest';
@@ -10,20 +9,23 @@ import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export function TestDetail() {
-  const { testId } = useParams<{ testId: string }>();
-  const navigate = useNavigate();
+interface TestDetailProps {
+  testId: string;
+  onBack: () => void;
+}
+
+export function TestDetail({ testId, onBack }: TestDetailProps) {
   const { toast } = useToast();
   const [logs, setLogs] = useState<string[]>([]);
 
-  const { data: test, isLoading: testLoading, refetch } = useWebTest(testId!);
-  const { data: result, isLoading: resultLoading } = useWebTestResult(testId!);
+  const { data: test, isLoading: testLoading, refetch } = useWebTest(testId);
+  const { data: result, isLoading: resultLoading } = useWebTestResult(testId);
 
   // Get token from localStorage
   const token = localStorage.getItem('access_token') || '';
 
   const { isConnected, hasError } = useWebSocketLog(
-    testId!,
+    testId,
     {
       onLog: (log) => {
         setLogs((prev) => [...prev, log]);
@@ -70,7 +72,7 @@ export function TestDetail() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/web-tests')}>
+          <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>

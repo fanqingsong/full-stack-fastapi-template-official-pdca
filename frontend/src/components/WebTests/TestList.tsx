@@ -3,7 +3,7 @@ import { DataTable } from '@/components/Common/DataTable';
 import { columns } from './testColumns';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
-import { useWebTests } from '@/client';
+import { useWebTests } from '@/hooks/useWebTest';
 
 interface TestListProps {
   onCreateNew: () => void;
