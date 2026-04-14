@@ -1,5 +1,13 @@
 import logging
-import sentry_sdk
+
+# Try to import sentry_sdk (optional - for production monitoring)
+try:
+    import sentry_sdk
+    HAS_SENTRY = True
+except ImportError:
+    HAS_SENTRY = False
+    sentry_sdk = None
+
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.responses import Response
@@ -29,7 +37,7 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return route.name
 
 
-if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
+if HAS_SENTRY and settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
     sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
 
 app = FastAPI(
