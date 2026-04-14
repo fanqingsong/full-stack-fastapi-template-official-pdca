@@ -1,10 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DataTableColumnHeader } from '@/components/Common/DataTable';
 import StatusBadge from './StatusBadge';
 import { formatDistanceToNow } from 'date-fns';
-
-import { MoreHorizontal, Eye, Redo2, Trash2 } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Eye, Redo2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,7 +15,7 @@ import {
 export interface WebTestPublic {
   id: string;
   url: string;
-  description: string;
+  description?: string;
   status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
   created_at: string;
   started_at?: string | null;
@@ -98,9 +96,17 @@ export const columns = (
   },
   {
     accessorKey: 'url',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="URL" />
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          URL
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const url = row.getValue('url') as string;
       return (
@@ -114,9 +120,17 @@ export const columns = (
   },
   {
     accessorKey: 'description',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Description
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const description = row.getValue('description') as string;
       return (
@@ -128,9 +142,17 @@ export const columns = (
   },
   {
     accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const status = row.getValue('status') as WebTestPublic['status'];
       return <StatusBadge status={status} />;
@@ -138,9 +160,17 @@ export const columns = (
   },
   {
     accessorKey: 'created_at',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Created
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const createdAt = row.getValue('created_at') as string;
       return (

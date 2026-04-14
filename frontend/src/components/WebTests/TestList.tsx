@@ -12,7 +12,7 @@ interface TestListProps {
 
 export function TestList({ onCreateNew, onViewDetails }: TestListProps) {
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const { data, isLoading, refetch } = useWebTests();
+  const { data, refetch } = useWebTests();
 
   const handleRetry = async (testId: string) => {
     // Implement retry logic

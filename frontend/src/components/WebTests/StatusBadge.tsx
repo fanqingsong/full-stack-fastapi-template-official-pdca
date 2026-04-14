@@ -48,7 +48,7 @@ export default function StatusBadge({ status, className }: StatusBadgeProps) {
         "gap-1",
         status === "running" && "bg-blue-500/10 text-blue-700 hover:bg-blue-500/20",
         status === "completed" && "bg-green-500/10 text-green-700 hover:bg-green-500/20",
-        config.pulse && "animate-pulse",
+        status === "running" && "animate-pulse",
         className
       )}
     >

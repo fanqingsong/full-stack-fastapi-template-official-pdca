@@ -46,6 +46,28 @@
 
 [![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
+## Web Automation Testing
+
+The platform includes a web automation testing feature that allows users to create browser-based tests using natural language. Tests are executed using Claude CLI's browser automation capabilities with real-time log streaming via WebSocket.
+
+### Key Features
+
+- **Natural Language Testing**: Describe tests in plain English
+- **Real-time Feedback**: Watch test execution live via WebSocket
+- **Screenshot Capture**: Automatic screenshots of test steps
+- **Concurrent Execution**: Run multiple tests simultaneously
+- **Test Management**: View, retry, and delete tests
+
+### Usage
+
+See [Web Tests Usage Guide](./docs/web-tests-usage.md) for detailed documentation on creating and managing web automation tests.
+
+### Requirements
+
+- Claude CLI installed on the server
+- MinIO configured for screenshot storage
+- Proper network access to target URLs
+
 ## How To Use It
 
 You can **just fork or clone** this repository and use it as is.

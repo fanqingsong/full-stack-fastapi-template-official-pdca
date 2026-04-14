@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw, Redo2 } from 'lucide-react';
 import { useWebTest, useWebTestResult } from '@/hooks/useWebTest';
-import { StatusBadge } from './StatusBadge';
-import { LogViewer } from './LogViewer';
+import StatusBadge from './StatusBadge';
+import LogViewer from './LogViewer';
 import { useWebSocketLog } from '@/hooks/useWebSocketLog';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -15,16 +15,12 @@ interface TestDetailProps {
 }
 
 export function TestDetail({ testId, onBack }: TestDetailProps) {
-  const { toast } = useToast();
   const [logs, setLogs] = useState<string[]>([]);
 
   const { data: test, isLoading: testLoading, refetch } = useWebTest(testId);
-  const { data: result, isLoading: resultLoading } = useWebTestResult(testId);
+  const { data: result } = useWebTestResult(testId);
 
-  // Get token from localStorage
-  const token = localStorage.getItem('access_token') || '';
-
-  const { isConnected, hasError } = useWebSocketLog(
+  const { isConnected } = useWebSocketLog(
     testId,
     {
       onLog: (log) => {
@@ -35,18 +31,11 @@ export function TestDetail({ testId, onBack }: TestDetailProps) {
         refetch();
       },
       onComplete: (completionData) => {
-        toast({
-          title: 'Test Completed',
-          description: completionData.success ? 'Test passed successfully' : 'Test failed',
-        });
+        toast.success(completionData.success ? 'Test passed successfully' : 'Test failed');
         refetch();
       },
       onError: (error) => {
-        toast({
-          title: 'Test Error',
-          description: error,
-          variant: 'destructive',
-        });
+        toast.error(error);
       },
     }
   );
