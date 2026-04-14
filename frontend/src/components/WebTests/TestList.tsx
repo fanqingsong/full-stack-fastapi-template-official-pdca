@@ -4,7 +4,6 @@ import { columns } from './testColumns';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
 import { useWebTests } from '@/client';
-import { WebTestPublic } from '@/client';
 
 interface TestListProps {
   onCreateNew: () => void;
