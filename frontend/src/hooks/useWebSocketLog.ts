@@ -48,6 +48,28 @@ export const useWebSocketLog = (
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const shouldReconnectRef = useRef(true)
 
+  // Store callbacks in a ref to avoid including them in useCallback dependencies
+  const callbacksRef = useRef({
+    onMessage,
+    onLog,
+    onStatus,
+    onScreenshot,
+    onComplete,
+    onError,
+  })
+
+  // Update callbacksRef when any callback changes
+  useEffect(() => {
+    callbacksRef.current = {
+      onMessage,
+      onLog,
+      onStatus,
+      onScreenshot,
+      onComplete,
+      onError,
+    }
+  }, [onMessage, onLog, onStatus, onScreenshot, onComplete, onError])
+
   const getAuthToken = useCallback(() => {
     return localStorage.getItem("access_token") || ""
   }, [])
@@ -86,35 +108,35 @@ export const useWebSocketLog = (
           const message: WebSocketMessage = JSON.parse(event.data)
 
           // Call generic message handler
-          if (onMessage) {
-            onMessage(message)
+          if (callbacksRef.current.onMessage) {
+            callbacksRef.current.onMessage(message)
           }
 
           // Call specific handlers based on message type
           switch (message.type) {
             case "log":
-              if (onLog && message.data?.log) {
-                onLog(message.data.log)
+              if (callbacksRef.current.onLog && message.data?.log) {
+                callbacksRef.current.onLog(message.data.log)
               }
               break
             case "status":
-              if (onStatus && message.data?.status) {
-                onStatus(message.data.status)
+              if (callbacksRef.current.onStatus && message.data?.status) {
+                callbacksRef.current.onStatus(message.data.status)
               }
               break
             case "screenshot":
-              if (onScreenshot && message.data?.screenshot) {
-                onScreenshot(message.data.screenshot)
+              if (callbacksRef.current.onScreenshot && message.data?.screenshot) {
+                callbacksRef.current.onScreenshot(message.data.screenshot)
               }
               break
             case "complete":
-              if (onComplete) {
-                onComplete(message.data)
+              if (callbacksRef.current.onComplete) {
+                callbacksRef.current.onComplete(message.data)
               }
               break
             case "error":
-              if (onError && message.data?.error) {
-                onError(message.data.error)
+              if (callbacksRef.current.onError && message.data?.error) {
+                callbacksRef.current.onError(message.data.error)
               }
               setHasError(true)
               break
@@ -152,7 +174,7 @@ export const useWebSocketLog = (
       console.error("[WebSocket] Failed to create connection:", error)
       setHasError(true)
     }
-  }, [testId, getAuthToken, retryCount, calculateDelay, onMessage, onLog, onStatus, onScreenshot, onComplete, onError])
+  }, [testId, getAuthToken, retryCount, calculateDelay])
 
   const disconnect = useCallback(() => {
     shouldReconnectRef.current = false
