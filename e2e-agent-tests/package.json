@@ -1,0 +1,27 @@
+{
+  "name": "e2e-agent-tests",
+  "version": "1.0.0",
+  "description": "AI Agent-based E2E Testing Framework for FastAPI Project",
+  "main": "src/chromium-runner.js",
+  "scripts": {
+    "test:chromium": "node src/chromium-runner.js tests/fastapi/basic-flow.test.md",
+    "test:chromium:all": "find tests -name '*.test.md' -exec node src/chromium-runner.js {} \\;",
+    "test:parse": "node src/smart-test-parser.js tests/fastapi/basic-flow.test.md",
+    "test:auth": "node src/chromium-runner.js tests/auth/login.test.md",
+    "test:api": "node src/chromium-runner.js tests/fastapi/api-endpoints.test.md"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^147.0.0",
+    "puppeteer": "^24.40.0"
+  },
+  "keywords": [
+    "e2e",
+    "testing",
+    "fastapi",
+    "agent",
+    "ai",
+    "browser-automation"
+  ],
+  "author": "FastAPI Project Team",
+  "license": "MIT"
+}
