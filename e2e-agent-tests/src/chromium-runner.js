@@ -91,8 +91,28 @@ class ChromiumRunner {
 
     async findElementByText(keywords) {
         const elements = await this.getPageSnapshot();
-        const keywordArray = keywords.toLowerCase().split(/\s+/);
 
+        // 如果 keywords 是数组，使用 OR 逻辑（匹配任一候选）
+        if (Array.isArray(keywords)) {
+            console.log(`🔍 查找元素（OR逻辑），候选:`, keywords);
+            for (const element of elements) {
+                const elementText = `${element.tag} ${element.text} ${element.name} ${element.type}`.toLowerCase();
+                // 检查是否匹配任一候选
+                for (const candidate of keywords) {
+                    const candidateWords = candidate.toLowerCase().split(/\s+/);
+                    // 对每个候选使用 AND 逻辑（所有词都要匹配）
+                    if (candidateWords.every(word => elementText.includes(word))) {
+                        console.log(`✅ 找到匹配元素，使用候选: "${candidate}"`);
+                        return element;
+                    }
+                }
+            }
+            console.log(`❌ 未找到匹配任一候选的元素`);
+            return null;
+        }
+
+        // 原有逻辑：单个关键词使用 AND 逻辑
+        const keywordArray = keywords.toLowerCase().split(/\s+/);
         for (const element of elements) {
             const elementText = `${element.tag} ${element.text} ${element.name} ${element.type}`.toLowerCase();
             if (keywordArray.every(keyword => elementText.includes(keyword))) {
@@ -103,11 +123,12 @@ class ChromiumRunner {
     }
 
     async clickByText(keywords) {
-        console.log(`🖱️  点击包含关键词的元素: ${keywords}`);
+        const displayKeywords = Array.isArray(keywords) ? keywords.join('" 或 "') : keywords;
+        console.log(`🖱️  点击包含关键词的元素: "${displayKeywords}"`);
         const element = await this.findElementByText(keywords);
 
         if (!element) {
-            throw new Error(`未找到包含关键词 "${keywords}" 的元素`);
+            throw new Error(`未找到包含关键词 "${displayKeywords}" 的元素`);
         }
 
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -362,12 +383,24 @@ class ChromiumRunner {
         if (text.match(/Click|Press/i)) {
             const buttonMatch = text.match(/(?:Click|Press)\s+(?:the\s+)?["']?(.+?)["']?\s+button/i);
             if (buttonMatch) {
-                return { type: 'click', target: buttonMatch[1].trim(), description: text };
+                const buttonText = buttonMatch[1].trim();
+                // 处理 "A or B" 的情况 - 拆分为多个候选
+                if (buttonText.includes(' or ')) {
+                    const candidates = buttonText.split(/\s+or\s+/i).map(s => s.trim().replace(/^["']|["']$/g, ''));
+                    return { type: 'click', target: candidates, description: text };
+                }
+                return { type: 'click', target: buttonText, description: text };
             }
 
             const clickMatch = text.match(/(?:Click|Press)\s+(.+)/i);
             if (clickMatch) {
-                return { type: 'click', target: clickMatch[1].replace(/\s+(?:button|link|element)$/, '').trim(), description: text };
+                const clickText = clickMatch[1].replace(/\s+(?:button|link|element)$/, '').trim();
+                // 处理 "A or B" 的情况
+                if (clickText.includes(' or ')) {
+                    const candidates = clickText.split(/\s+or\s+/i).map(s => s.trim().replace(/^["']|["']$/g, ''));
+                    return { type: 'click', target: candidates, description: text };
+                }
+                return { type: 'click', target: clickText, description: text };
             }
         }
 
