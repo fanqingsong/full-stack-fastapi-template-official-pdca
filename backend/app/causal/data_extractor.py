@@ -3,6 +3,7 @@
 import uuid
 from typing import List, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from sqlmodel import select
 import pandas as pd
 
@@ -43,6 +44,27 @@ def extract_pdca_features(
     if not cycles:
         return pd.DataFrame()
 
+    # Collect all cycle IDs for batch error count query
+    cycle_id_list = [cycle.id for cycle in cycles]
+
+    # Single aggregated query to get error counts for all cycles
+    error_count_map = {}
+    if cycle_id_list:
+        error_counts = db.exec(
+            select(
+                ExecutionLog.cycle_id,
+                func.count(ExecutionLog.id).label("count")
+            )
+            .where(
+                ExecutionLog.cycle_id.in_(cycle_id_list),
+                ExecutionLog.level == "error"
+            )
+            .group_by(ExecutionLog.cycle_id)
+        ).all()
+
+        # Create a mapping for easy lookup
+        error_count_map = {row.cycle_id: row.count for row in error_counts}
+
     features = []
     for cycle in cycles:
         # Calculate cycle duration
@@ -51,13 +73,8 @@ def extract_pdca_features(
             duration = cycle.completed_at - cycle.started_at
             duration_hours = duration.total_seconds() / 3600
 
-        # Count execution errors
-        error_count = db.exec(
-            select(ExecutionLog).where(
-                ExecutionLog.cycle_id == cycle.id,
-                ExecutionLog.level == "error"
-            )
-        ).count()
+        # Get error count from pre-fetched map (defaults to 0 if no errors)
+        error_count = error_count_map.get(cycle.id, 0)
 
         # Extract features
         feature_row = {
