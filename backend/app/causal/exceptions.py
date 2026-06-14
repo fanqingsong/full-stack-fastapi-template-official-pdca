@@ -1,15 +1,15 @@
 """Custom exceptions for causal analysis."""
 
-from typing import List
-
 
 class CausalAnalysisError(Exception):
     """Base exception for causal analysis errors."""
+
     pass
 
 
 class InsufficientDataError(CausalAnalysisError):
     """Raised when not enough data for reliable analysis."""
+
     def __init__(self, sample_size: int, required: int = 50):
         self.sample_size = sample_size
         self.required = required
@@ -20,13 +20,15 @@ class InsufficientDataError(CausalAnalysisError):
 
 class UnidentifiableEffectError(CausalAnalysisError):
     """Raised when causal effect cannot be identified."""
+
     def __init__(self, reason: str):
         super().__init__(f"Causal effect cannot be identified: {reason}")
 
 
 class QueryAmbiguityError(CausalAnalysisError):
     """Raised when natural language query is too ambiguous."""
-    def __init__(self, query: str, ambiguities: List[str]):
+
+    def __init__(self, query: str, ambiguities: list[str]):
         self.ambiguities = ambiguities
         super().__init__(
             f"Query '{query}' is ambiguous. Please clarify: {', '.join(ambiguities)}"
@@ -35,6 +37,7 @@ class QueryAmbiguityError(CausalAnalysisError):
 
 class DataQualityError(CausalAnalysisError):
     """Raised when data has quality issues."""
-    def __init__(self, issues: List[str]):
+
+    def __init__(self, issues: list[str]):
         self.issues = issues
         super().__init__(f"Data quality issues: {', '.join(issues)}")

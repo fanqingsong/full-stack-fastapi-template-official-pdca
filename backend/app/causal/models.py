@@ -1,9 +1,8 @@
 """Data models for causal inference analysis."""
 
 import uuid
-from typing import List, Dict, Any, Optional, Literal
+from typing import Any, Literal
 from sqlmodel import SQLModel, Field
-from datetime import datetime
 
 
 class CausalQueryRequest(SQLModel):
@@ -14,16 +13,18 @@ class CausalQueryRequest(SQLModel):
 
 class CausalNode(SQLModel):
     """Node in causal graph."""
-    name: str
-    label: str
+
+    name: str = Field(..., max_length=100)
+    label: str = Field(..., max_length=200)
     node_type: Literal["treatment", "outcome", "confounder", "mediator"]
     strength: float = Field(ge=0, le=1)
 
 
 class CausalEdge(SQLModel):
     """Edge (causal relationship) in graph."""
-    cause: str
-    effect: str
+
+    cause: str = Field(..., max_length=100)
+    effect: str = Field(..., max_length=100)
     effect_size: float
     confidence: float = Field(ge=0, le=1)
     method: Literal["backdoor", "frontdoor", "iv"]
@@ -31,26 +32,29 @@ class CausalEdge(SQLModel):
 
 class CausalGraph(SQLModel):
     """Complete causal graph structure."""
-    nodes: List[CausalNode]
-    edges: List[CausalEdge]
-    metadata: Dict[str, Any] = {}
+
+    nodes: list[CausalNode]
+    edges: list[CausalEdge]
+    graph_metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class CausalAnalysisResponse(SQLModel):
     """Response from causal analysis."""
+
     graph: CausalGraph
-    explanation: str
-    statistics: Dict[str, Any]
-    query_understanding: str
+    explanation: str = Field(..., max_length=2000)
+    statistics: dict[str, Any]
+    query_understanding: str = Field(..., max_length=500)
     analysis_id: uuid.UUID = Field(default_factory=uuid.uuid4)
 
 
 class AnalysisRequest(SQLModel):
     """Structured analysis request parsed from natural language."""
+
     outcome_variable: str
-    treatment_variables: List[str]
+    treatment_variables: list[str]
     analysis_type: Literal["success_factors", "timing_drivers", "error_analysis"]
-    filters: Dict[str, Any] = {}
+    filters: dict[str, Any] = Field(default_factory=dict)
 
     def summary(self) -> str:
         treatments = ", ".join(self.treatment_variables[:3])
@@ -62,11 +66,12 @@ class AnalysisRequest(SQLModel):
 # Internal models (not exposed in API)
 class CausalResult:
     """Internal result from causal engine."""
+
     def __init__(
         self,
-        graph: "causal_graph",
-        effects: Dict[str, float],
-        statistics: Dict[str, Any],
+        graph: CausalGraph,
+        effects: dict[str, float],
+        statistics: dict[str, Any],
         model: Any
     ):
         self.graph = graph
