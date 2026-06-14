@@ -27,10 +27,10 @@ dependencies = [
     "zhipuai>=2.1.0",
     "prometheus-client>=0.20.0,<1.0.0",
     "psutil>=5.9.0,<6.0.0",
-    "causal-learn>=0.1.3,<0.2.0",
-    "pandas>=2.0.0,<3.0.0",
-    "numpy>=1.24.0,<2.0.0",
-    "scikit-learn>=1.3.0,<2.0.0",
+    "causal-learn>=0.1.3",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
 ]
 
 [dependency-groups]
