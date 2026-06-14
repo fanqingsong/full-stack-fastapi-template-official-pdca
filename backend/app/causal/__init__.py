@@ -1,4 +1,19 @@
 """Causal inference analysis module for PDCA workflow."""
 
-# Models and exports will be added in Task 2
-__all__ = []
+from app.causal.models import (
+    CausalQueryRequest,
+    CausalNode,
+    CausalEdge,
+    CausalGraph,
+    CausalAnalysisResponse,
+    AnalysisRequest,
+)
+
+__all__ = [
+    "CausalQueryRequest",
+    "CausalNode",
+    "CausalEdge",
+    "CausalGraph",
+    "CausalAnalysisResponse",
+    "AnalysisRequest",
+]
