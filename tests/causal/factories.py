@@ -2,7 +2,9 @@
 
 import pandas as pd
 import numpy as np
+import uuid
 from typing import List, Tuple
+from app.models import User
 
 
 def generate_synthetic_data(
@@ -94,3 +96,19 @@ def create_pdca_cycle_data(
         })
 
     return pd.DataFrame(data)
+
+
+def create_test_user(db, email: str = "test@example.com"):
+    """Create a test user in the database."""
+    user = User(
+        id=uuid.uuid4(),
+        email=email,
+        hashed_password="hashed_password",
+        is_active=True,
+        is_superuser=True,
+        full_name="Test User"
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
