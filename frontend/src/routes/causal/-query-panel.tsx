@@ -1,17 +1,17 @@
 /** Query input panel for causal analysis */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 interface QueryPanelProps {
-  query: string;
-  setQuery: (query: string) => void;
-  onAnalyze: () => void;
-  loading: boolean;
-  exampleQueries: string[];
+  query: string
+  setQuery: (query: string) => void
+  onAnalyze: () => void
+  loading: boolean
+  exampleQueries: string[]
 }
 
 export function QueryPanel({
@@ -74,5 +74,5 @@ export function QueryPanel({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

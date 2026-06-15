@@ -14,6 +14,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as CausalIndexRouteImport } from './routes/causal/index'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutWebTestsRouteImport } from './routes/_layout/web-tests'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
@@ -45,6 +46,11 @@ const LoginRoute = LoginRouteImport.update({
 } as any)
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CausalIndexRoute = CausalIndexRouteImport.update({
+  id: '/causal/',
+  path: '/causal/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/pdca': typeof LayoutPdcaRoute
   '/settings': typeof LayoutSettingsRoute
   '/web-tests': typeof LayoutWebTestsRouteWithChildren
+  '/causal/': typeof CausalIndexRoute
   '/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRoutesByTo {
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/web-tests': typeof LayoutWebTestsRouteWithChildren
   '/': typeof LayoutIndexRoute
+  '/causal': typeof CausalIndexRoute
   '/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRoutesById {
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/web-tests': typeof LayoutWebTestsRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
+  '/causal/': typeof CausalIndexRoute
   '/_layout/web-tests/$testId': typeof LayoutWebTestsTestIdRoute
 }
 export interface FileRouteTypes {
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/pdca'
     | '/settings'
     | '/web-tests'
+    | '/causal/'
     | '/web-tests/$testId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/web-tests'
     | '/'
+    | '/causal'
     | '/web-tests/$testId'
   id:
     | '__root__'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/web-tests'
     | '/_layout/'
+    | '/causal/'
     | '/_layout/web-tests/$testId'
   fileRoutesById: FileRoutesById
 }
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  CausalIndexRoute: typeof CausalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -221,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/causal/': {
+      id: '/causal/'
+      path: '/causal'
+      fullPath: '/causal/'
+      preLoaderRoute: typeof CausalIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_layout/': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  CausalIndexRoute: CausalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

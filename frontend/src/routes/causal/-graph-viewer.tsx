@@ -1,30 +1,30 @@
 /** Interactive causal graph visualization */
 
-import { useEffect, useRef } from "react";
-import { Network } from "vis-network/standalone";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { CausalGraph, CausalNode } from "./types";
+import { useEffect, useRef } from "react"
+import { Network } from "vis-network/standalone"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { CausalGraph, CausalNode } from "./types"
 
 interface GraphViewerProps {
-  graph: CausalGraph;
+  graph: CausalGraph
 }
 
 function getNodeColor(nodeType: CausalNode["node_type"]): string {
   const colors = {
-    treatment: "#3b82f6",    // blue
-    outcome: "#22c55e",      // green
-    confounder: "#eab308",   // yellow
-    mediator: "#a855f7",     // purple
-  };
-  return colors[nodeType];
+    treatment: "#3b82f6", // blue
+    outcome: "#22c55e", // green
+    confounder: "#eab308", // yellow
+    mediator: "#a855f7", // purple
+  }
+  return colors[nodeType]
 }
 
 export function GraphViewer({ graph }: GraphViewerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const networkRef = useRef<Network | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const networkRef = useRef<Network | null>(null)
 
   useEffect(() => {
-    if (!containerRef.current || !graph) return;
+    if (!containerRef.current || !graph) return
 
     // Transform causal graph to vis.js format
     const nodes = graph.nodes.map((node) => ({
@@ -34,7 +34,7 @@ export function GraphViewer({ graph }: GraphViewerProps) {
       color: getNodeColor(node.node_type),
       font: { size: 16 },
       title: `${node.label}\nStrength: ${node.strength.toFixed(2)}`,
-    }));
+    }))
 
     const edges = graph.edges.map((edge) => ({
       from: edge.cause,
@@ -47,7 +47,7 @@ export function GraphViewer({ graph }: GraphViewerProps) {
         color: edge.effect_size > 0 ? "#4ade80" : "#f87171",
         highlight: "#22c55e",
       },
-    }));
+    }))
 
     const options = {
       nodes: {
@@ -71,17 +71,21 @@ export function GraphViewer({ graph }: GraphViewerProps) {
         tooltipDelay: 200,
         zoomView: true,
       },
-    };
+    }
 
-    networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
+    networkRef.current = new Network(
+      containerRef.current,
+      { nodes, edges },
+      options,
+    )
 
     return () => {
       if (networkRef.current) {
-        networkRef.current.destroy();
-        networkRef.current = null;
+        networkRef.current.destroy()
+        networkRef.current = null
       }
-    };
-  }, [graph]);
+    }
+  }, [graph])
 
   if (!graph || graph.nodes.length === 0) {
     return (
@@ -90,7 +94,7 @@ export function GraphViewer({ graph }: GraphViewerProps) {
           <p className="text-gray-500">No causal graph available</p>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -124,5 +128,5 @@ export function GraphViewer({ graph }: GraphViewerProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

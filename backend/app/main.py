@@ -34,7 +34,7 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     # Handle routes without tags (like /metrics)
     if route.tags and len(route.tags) > 0:
         return f"{route.tags[0]}-{route.name}"
-    return route.name
+    return route.name  # Fallback to route name if no tags
 
 
 if HAS_SENTRY and settings.SENTRY_DSN and settings.ENVIRONMENT != "local":

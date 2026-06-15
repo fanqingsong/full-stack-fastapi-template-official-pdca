@@ -13,7 +13,6 @@ def db(request) -> Generator[Session, None, None]:
         return
 
     # Import database-related modules only when needed
-    from app.core.config import settings
     from app.core.db import engine, init_db
     from app.models import Item, User
     from app.pdca.models import PDCACycle, AgentConfig, ExecutionLog

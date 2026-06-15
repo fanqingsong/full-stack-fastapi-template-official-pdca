@@ -1,12 +1,12 @@
 /** Results display panel for causal analysis */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { CausalAnalysisResponse } from "./types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { CausalAnalysisResponse } from "./types"
 
 interface ResultsPanelProps {
-  explanation: string;
-  statistics: CausalAnalysisResponse["statistics"];
-  queryUnderstanding: string;
+  explanation: string
+  statistics: CausalAnalysisResponse["statistics"]
+  queryUnderstanding: string
 }
 
 export function ResultsPanel({
@@ -40,7 +40,9 @@ export function ResultsPanel({
             </div>
             <div className="bg-gray-50 p-2 rounded">
               <div className="text-xs text-gray-600">Algorithm</div>
-              <div className="font-semibold text-sm">{statistics.algorithm}</div>
+              <div className="font-semibold text-sm">
+                {statistics.algorithm}
+              </div>
             </div>
             <div className="bg-gray-50 p-2 rounded">
               <div className="text-xs text-gray-600">Variables</div>
@@ -64,5 +66,5 @@ export function ResultsPanel({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
