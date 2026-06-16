@@ -9,7 +9,7 @@ psycopg2-binary>=2.9.9
 redis>=5.0.1
 
 # Data processing
-pandas>=2.1.0
+pandas>=3.0.2
 numpy>=1.26.0
 
 # Async support
