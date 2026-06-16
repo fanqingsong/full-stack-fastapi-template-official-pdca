@@ -1,6 +1,5 @@
 """Natural language query processing for causal analysis."""
 
-import json
 import re
 from typing import List, Dict, Any, Optional
 from pydantic import ValidationError
