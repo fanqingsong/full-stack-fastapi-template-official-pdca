@@ -11,7 +11,7 @@
 
 services:
   airflow-postgres:
-    image: postgres:13
+    image: postgres:18
     container_name: ${STACK_NAME:-full-stack-fastapi-dev}-airflow-postgres
     environment:
       POSTGRES_USER: airflow
