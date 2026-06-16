@@ -22,7 +22,7 @@ services:
 
   # Kong 数据库迁移
   kong-migrations:
-    image: kong:3.4
+    image: kong:3.9
     restart: on-failure
     networks:
       - kong-network
@@ -39,7 +39,7 @@ services:
 
   # Kong Gateway
   kong:
-    image: kong:3.4
+    image: kong:3.9
     restart: always
     networks:
       - kong-network
