@@ -195,7 +195,7 @@ services:
 
   # Redis - In-memory data store
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD:-changethis} --appendonly yes
     volumes:
